@@ -4,6 +4,7 @@
 - [https://www.convex.dev/components/prosemirror-sync](https://www.convex.dev/components/prosemirror-sync) 
 
 
+
 # Welcome to your Convex + React (Vite) + Convex Auth app
 
 This is a [Convex](https://convex.dev/) project created with [`npm create convex`](https://www.npmjs.com/package/create-convex).
