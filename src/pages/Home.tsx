@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Button } from "../components/ui/button";
 
@@ -8,6 +8,7 @@ export function HomePage() {
       count: 10,
     }) ?? {};
   const addNumber = useMutation(api.myFunctions.addNumber);
+  const sendMail = useAction(api.sendMail.sendTestEmail);
 
   if (viewer === undefined || numbers === undefined) {
     return (
@@ -40,12 +41,15 @@ export function HomePage() {
           ? "Click the button!"
           : (numbers?.join(", ") ?? "...")}
       </p>
-      <p>
-        Edit <code>convex/myFunctions.ts</code> to change your backend
-      </p>
-      <p>
-        Edit <code>src/App.tsx</code> to change your frontend
-      </p>
+      <Button
+        className="cursor-pointer"
+        onClick={async () => {
+          const resp = await sendMail();
+          console.log(resp);
+        }}
+      >
+        Send Demo Email
+      </Button>
     </div>
   );
 }
