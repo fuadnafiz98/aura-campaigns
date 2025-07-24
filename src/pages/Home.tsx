@@ -41,6 +41,7 @@ export function HomePage() {
           ? "Click the button!"
           : (numbers?.join(", ") ?? "...")}
       </p>
+      {/*
       <Button
         className="cursor-pointer"
         onClick={async () => {
@@ -50,6 +51,7 @@ export function HomePage() {
       >
         Send Demo Email
       </Button>
+      */}
     </div>
   );
 }
