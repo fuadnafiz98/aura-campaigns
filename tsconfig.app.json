@@ -31,7 +31,5 @@
       ]
     }
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src", "src/router.tsx"],
 }
