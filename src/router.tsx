@@ -11,6 +11,7 @@ import { SignInPage } from "./pages/SignIn";
 import { SignOutPage } from "./pages/SignOut";
 import { Skeleton } from "./components/ui/skeleton";
 import WithSideBar from "./components/with-sidebar";
+import { LeadsPage } from "./pages/Leads";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -70,7 +71,7 @@ const router = createBrowserRouter(
                 <Skeleton className="h-full m-4" />
               </AuthLoading>
               <Authenticated>
-                <div>Leads</div>
+                <LeadsPage />
               </Authenticated>
             </>
           </WithSideBar>
