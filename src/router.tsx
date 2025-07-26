@@ -27,6 +27,9 @@ const router = createBrowserRouter(
                 <div>Dashboard</div>
               </WithSideBar>
             </Authenticated>
+            <Unauthenticated>
+              <SignInPage />
+            </Unauthenticated>
           </>
         }
       />
