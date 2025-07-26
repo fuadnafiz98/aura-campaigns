@@ -23,7 +23,7 @@ export const _sendTestEmail = internalMutation({
 
 export const sendTestEmail = action({
   args: {},
-  handler: async (ctx, args) => {
+  handler: async (ctx, _args) => {
     const resp = await ctx.runMutation(internal.sendMail._sendTestEmail, {});
     console.log("After mail sent", resp);
   },
@@ -34,7 +34,7 @@ export const handleEmailEvent = internalMutation({
     id: vEmailId,
     event: vEmailEvent,
   },
-  handler: async (ctx, args) => {
+  handler: async (_ctx, args) => {
     console.log("Email event:", args.id, args.event);
   },
 });
