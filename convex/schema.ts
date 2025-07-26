@@ -10,4 +10,9 @@ export default defineSchema({
   numbers: defineTable({
     value: v.number(),
   }),
+  files: defineTable({
+    body: v.string(),
+    author: v.string(),
+    format: v.string(),
+  }),
 });

@@ -9,6 +9,7 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as fileUpload from "../fileUpload.js";
 import type * as http from "../http.js";
 import type * as myFunctions from "../myFunctions.js";
 import type * as sendMail from "../sendMail.js";
@@ -30,6 +31,7 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  fileUpload: typeof fileUpload;
   http: typeof http;
   myFunctions: typeof myFunctions;
   sendMail: typeof sendMail;

@@ -7,6 +7,7 @@ export const getUserInfo = query({
     const userId = await getAuthUserId(ctx);
     const user = userId === null ? null : await ctx.db.get(userId);
     return {
+      userId: userId,
       user: user?.email ?? null,
     };
   },

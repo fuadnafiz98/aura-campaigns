@@ -1,7 +1,10 @@
 import type React from "react";
 
-import { useState, useRef, memo } from "react";
+import { useState, useRef } from "react";
 import { Upload } from "lucide-react";
+import axios from "axios";
+import { api } from "../../../convex/_generated/api";
+import { useMutation, useQuery } from "convex/react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,14 +20,19 @@ interface UploadLeadsModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export const UploadLeadsModal = memo(function UploadLeadsModal({
+export const UploadLeadsModal = ({
   open,
   onOpenChange,
-}: UploadLeadsModalProps) {
+}: UploadLeadsModalProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
+  const generateUploadUrl = useMutation(api.fileUpload.generateUploadUrl);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const sendFile = useMutation(api.fileUpload.sendFile);
+  const user = useQuery(api.user.getUserInfo);
 
   const handleFileChange = (selectedFile: File) => {
     setFile(selectedFile);
@@ -49,18 +57,64 @@ export const UploadLeadsModal = memo(function UploadLeadsModal({
     setDragOver(false);
   };
 
-  const handleImport = () => {
+  const handleImportClick = () => {
+    handleImport().catch((error) => {
+      console.error("Import failed:", error);
+    });
+  };
+
+  const handleImport = async () => {
     if (!file) return;
-    // TODO: Implement actual import logic
-    console.log("Importing file:", file.name);
-    onOpenChange(false);
-    setFile(null);
+
+    try {
+      setUploading(true);
+      setUploadProgress(0);
+
+      console.log("Importing file:", file.name);
+
+      const postURL = await generateUploadUrl();
+
+      const response = await axios.post(postURL, file, {
+        headers: {
+          "Content-Type": file.type,
+        },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const progress = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total,
+            );
+            setUploadProgress(progress);
+          }
+        },
+      });
+
+      console.log("Upload successful:", response.data);
+
+      const { storageId } = await response.data;
+
+      if (user?.userId) {
+        await sendFile({ storageId, author: user.userId });
+      }
+
+      // Reset state and close modal
+      setUploading(false);
+      setUploadProgress(0);
+      onOpenChange(false);
+      setFile(null);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      setUploading(false);
+      setUploadProgress(0);
+      // TODO: Show error message to user
+    }
   };
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
       setFile(null);
       setDragOver(false);
+      setUploading(false);
+      setUploadProgress(0);
     }
     onOpenChange(newOpen);
   };
@@ -119,19 +173,40 @@ export const UploadLeadsModal = memo(function UploadLeadsModal({
               <p className="text-xs text-muted-foreground">
                 {(file.size / 1024).toFixed(1)} KB
               </p>
+
+              {/* Upload Progress */}
+              {uploading && (
+                <div className="mt-2">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                    <span>Uploading...</span>
+                    <span>{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-2">
+                    <div
+                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
           {/* Actions */}
           {file && (
             <div className="flex gap-2">
-              <Button onClick={handleImport} className="flex-1 cursor-pointer">
-                Import Leads
+              <Button
+                onClick={handleImportClick}
+                className="flex-1 cursor-pointer"
+                disabled={uploading}
+              >
+                {uploading ? `Uploading... ${uploadProgress}%` : "Import Leads"}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setFile(null)}
                 className="cursor-pointer"
+                disabled={uploading}
               >
                 Remove
               </Button>
@@ -141,4 +216,4 @@ export const UploadLeadsModal = memo(function UploadLeadsModal({
       </DialogContent>
     </Dialog>
   );
-});
+};
