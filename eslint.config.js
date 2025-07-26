@@ -28,7 +28,11 @@ export default tseslint.config(
         ...globals.node,
       },
       parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json", "./convex/tsconfig.json"],
+        project: [
+          "./tsconfig.node.json",
+          "./tsconfig.app.json",
+          "./convex/tsconfig.json",
+        ],
       },
     },
     plugins: {
@@ -45,6 +49,8 @@ export default tseslint.config(
       // TypeScript, and can be removed for stricter
       // linting down the line.
 
+      // Disable core rule, use TypeScript version
+      "no-unused-vars": "off",
       // Only warn on unused variables, and ignore variables starting with `_`
       "@typescript-eslint/no-unused-vars": [
         "warn",

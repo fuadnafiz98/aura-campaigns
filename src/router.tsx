@@ -1,24 +1,16 @@
+import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 import {
   createBrowserRouter,
-  RouterProvider,
-  Route,
   createRoutesFromElements,
-  Navigate,
+  Route,
+  RouterProvider,
 } from "react-router-dom";
 import App from "./App";
-import { Authenticated, Unauthenticated, useConvexAuth } from "convex/react";
-import { HomePage } from "./pages/Home";
 import { SignInPage } from "./pages/SignIn";
 
 import { SignOutPage } from "./pages/SignOut";
-
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useConvexAuth();
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-}
+import { Skeleton } from "./components/ui/skeleton";
+import WithSideBar from "./components/with-sidebar";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -26,25 +18,74 @@ const router = createBrowserRouter(
       <Route
         index
         element={
-          <Authenticated>
-            <HomePage />
-          </Authenticated>
+          <>
+            <AuthLoading>
+              <Skeleton className="h-full m-4" />
+            </AuthLoading>
+            <Authenticated>
+              <WithSideBar label="Dashboard">
+                <div>Dashboard</div>
+              </WithSideBar>
+            </Authenticated>
+          </>
         }
       />
       <Route
         path="login"
         element={
-          <Unauthenticated>
-            <SignInPage />
-          </Unauthenticated>
+          <>
+            <AuthLoading>
+              <Skeleton className="h-full m-4" />
+            </AuthLoading>
+            <Unauthenticated>
+              <SignInPage />
+            </Unauthenticated>
+          </>
         }
       />
       <Route
         path="dashboard"
         element={
-          <ProtectedRoute>
-            <div>Dashboard</div>
-          </ProtectedRoute>
+          <WithSideBar label="Dashboard">
+            <>
+              <AuthLoading>
+                <Skeleton className="h-full m-4" />
+              </AuthLoading>
+              <Authenticated>
+                <div>Dashboard</div>
+              </Authenticated>
+            </>
+          </WithSideBar>
+        }
+      />
+      <Route
+        path="leads"
+        element={
+          <WithSideBar label="Leads">
+            <>
+              <AuthLoading>
+                <Skeleton className="h-full m-4" />
+              </AuthLoading>
+              <Authenticated>
+                <div>Leads</div>
+              </Authenticated>
+            </>
+          </WithSideBar>
+        }
+      />
+      <Route
+        path="campaigns"
+        element={
+          <WithSideBar label="Campaigns">
+            <>
+              <AuthLoading>
+                <Skeleton className="h-full m-4" />
+              </AuthLoading>
+              <Authenticated>
+                <div>Camp</div>
+              </Authenticated>
+            </>
+          </WithSideBar>
         }
       />
       <Route path="signout" element={<SignOutPage />} />
