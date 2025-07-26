@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { Upload } from "lucide-react";
 import axios from "axios";
 import { api } from "../../../convex/_generated/api";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,15 +24,23 @@ export const UploadLeadsModal = ({
   open,
   onOpenChange,
 }: UploadLeadsModalProps) => {
+  // states
   const [file, setFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-
-  const generateUploadUrl = useMutation(api.fileUpload.generateUploadUrl);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [storageId, setStorageId] = useState<any>(null);
+
+  // convex hooks
+  const generateUploadUrl = useMutation(api.fileUpload.generateUploadUrl);
   const sendFile = useMutation(api.fileUpload.sendFile);
   const user = useQuery(api.user.getUserInfo);
+  const CSVImportWF = useAction(api.csvWorkflow.KSCSVImportWf);
+  const CSVImportWFTask = useQuery(
+    api.csvWorkflow.CSVImportWfTask,
+    storageId ? { id: storageId } : "skip",
+  );
 
   const handleFileChange = (selectedFile: File) => {
     setFile(selectedFile);
@@ -99,8 +107,10 @@ export const UploadLeadsModal = ({
       // Reset state and close modal
       setUploading(false);
       setUploadProgress(0);
-      onOpenChange(false);
       setFile(null);
+      // onOpenChange(false);
+      await CSVImportWF({ storageId: storageId });
+      setStorageId(storageId);
     } catch (error) {
       console.error("Upload failed:", error);
       setUploading(false);
@@ -118,6 +128,8 @@ export const UploadLeadsModal = ({
     }
     onOpenChange(newOpen);
   };
+
+  console.log(CSVImportWFTask);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -189,6 +201,60 @@ export const UploadLeadsModal = ({
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* CSV Import Status */}
+          {CSVImportWFTask && (
+            <div className="p-4 bg-muted/50 border rounded-lg">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-medium">Import Status</h4>
+                  <div className="flex items-center space-x-2">
+                    {CSVImportWFTask.status !== "DONE" && (
+                      <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin"></div>
+                    )}
+                    <div className="text-xs text-muted-foreground">
+                      {CSVImportWFTask.status === "CREATED" && "File Uploaded"}
+                      {CSVImportWFTask.status === "PROCESSING" &&
+                        "Processing CSV"}
+                      {CSVImportWFTask.status === "DONE" && "Import Complete"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Overall Progress Bar */}
+                <div>
+                  <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary rounded-full transition-all duration-700 ease-out"
+                      style={{
+                        width: `${
+                          CSVImportWFTask.status === "CREATED"
+                            ? "33%"
+                            : CSVImportWFTask.status === "PROCESSING"
+                              ? "66%"
+                              : CSVImportWFTask.status === "DONE"
+                                ? "100%"
+                                : "0%"
+                        }`,
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>Progress</span>
+                    <span>
+                      {CSVImportWFTask.status === "CREATED"
+                        ? "33%"
+                        : CSVImportWFTask.status === "PROCESSING"
+                          ? "66%"
+                          : CSVImportWFTask.status === "DONE"
+                            ? "100%"
+                            : "0%"}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

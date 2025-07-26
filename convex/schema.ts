@@ -15,4 +15,8 @@ export default defineSchema({
     author: v.string(),
     format: v.string(),
   }),
+  CSVWFTasks: defineTable({
+    storageId: v.id("_storage"),
+    status: v.string(),
+  }),
 });
