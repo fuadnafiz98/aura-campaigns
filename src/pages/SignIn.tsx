@@ -25,10 +25,9 @@ export function SignInPage() {
   };
 
   return (
-    <div className="flex flex-col gap-8 w-96 mx-auto">
-      <p>Log in to see the numbers</p>
+    <div className="grid place-content-center w-full">
       <form
-        className="flex flex-col gap-2"
+        className="flex flex-col gap-2 w-96"
         onSubmit={(e) => {
           handleSubmit(e).catch(console.error);
         }}
