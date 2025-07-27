@@ -6,12 +6,13 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import App from "./App";
-import { SignInPage } from "./pages/SignIn";
+import { SignInPage } from "./pages/sign-in";
 
-import { SignOutPage } from "./pages/SignOut";
+import { SignOutPage } from "./pages/sign-out";
 import { Skeleton } from "./components/ui/skeleton";
 import WithSideBar from "./components/with-sidebar";
-import { LeadsPage } from "./pages/Leads";
+import { LeadsPage } from "./pages/leads";
+import EmailCampaignFlow from "./pages/campaigns";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -86,7 +87,7 @@ const router = createBrowserRouter(
                 <Skeleton className="h-full m-4" />
               </AuthLoading>
               <Authenticated>
-                <div>Camp</div>
+                <EmailCampaignFlow />
               </Authenticated>
             </>
           </WithSideBar>

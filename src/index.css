@@ -210,3 +210,73 @@
   --sidebar-border: hsl(240 3.7% 11.9%); /* Even Darker */
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }
+
+.ProseMirror {
+  outline: none;
+  background: var(--color-card);
+  color: var(--color-card-foreground);
+  font-family: var(--font-sans);
+}
+
+.ProseMirror > * + * {
+  margin-top: 0.75em;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding: 0 1rem;
+}
+
+.ProseMirror h2,
+.ProseMirror h3 {
+  line-height: 1.1;
+  color: var(--color-primary);
+}
+
+.ProseMirror code {
+  background-color: var(--color-muted);
+  color: var(--color-muted-foreground);
+  border-radius: var(--radius-sm);
+  padding: 0.15em 0.4em;
+}
+
+.ProseMirror pre {
+  background: var(--color-popover);
+  color: var(--color-popover-foreground);
+  font-family: var(--font-mono);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+}
+
+.ProseMirror pre code {
+  color: inherit;
+  padding: 0;
+  background: none;
+  font-size: 0.8rem;
+}
+
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+.ProseMirror blockquote {
+  padding-left: 1rem;
+  border-left: 2px solid var(--color-border);
+  color: var(--color-muted-foreground);
+}
+
+.ProseMirror hr {
+  border: none;
+  border-top: 2px solid var(--color-border);
+  margin: 2rem 0;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--color-muted-foreground);
+  pointer-events: none;
+  height: 0;
+}
