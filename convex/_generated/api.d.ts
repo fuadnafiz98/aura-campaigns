@@ -13,7 +13,9 @@ import type * as csvWorkflow from "../csvWorkflow.js";
 import type * as fileUpload from "../fileUpload.js";
 import type * as http from "../http.js";
 import type * as index from "../index.js";
+import type * as leads from "../leads.js";
 import type * as myFunctions from "../myFunctions.js";
+import type * as praseCSV from "../praseCSV.js";
 import type * as sendMail from "../sendMail.js";
 import type * as user from "../user.js";
 
@@ -37,7 +39,9 @@ declare const fullApi: ApiFromModules<{
   fileUpload: typeof fileUpload;
   http: typeof http;
   index: typeof index;
+  leads: typeof leads;
   myFunctions: typeof myFunctions;
+  praseCSV: typeof praseCSV;
   sendMail: typeof sendMail;
   user: typeof user;
 }>;

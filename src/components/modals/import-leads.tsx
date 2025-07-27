@@ -1,6 +1,6 @@
 import type React from "react";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Upload } from "lucide-react";
 import axios from "axios";
 import { api } from "../../../convex/_generated/api";
@@ -105,12 +105,12 @@ export const UploadLeadsModal = ({
       }
 
       // Reset state and close modal
+      setStorageId(storageId);
       setUploading(false);
       setUploadProgress(0);
       setFile(null);
       // onOpenChange(false);
       await CSVImportWF({ storageId: storageId });
-      setStorageId(storageId);
     } catch (error) {
       console.error("Upload failed:", error);
       setUploading(false);
@@ -129,7 +129,11 @@ export const UploadLeadsModal = ({
     onOpenChange(newOpen);
   };
 
-  console.log(CSVImportWFTask);
+  useEffect(() => {
+    if (CSVImportWFTask?.status === "DONE") {
+      onOpenChange(false);
+    }
+  }, [onOpenChange, CSVImportWFTask]);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -178,86 +182,6 @@ export const UploadLeadsModal = ({
             />
           </div>
 
-          {/* File Info */}
-          {file && (
-            <div className="p-3 bg-muted border rounded">
-              <p className="text-sm font-medium">{file.name}</p>
-              <p className="text-xs text-muted-foreground">
-                {(file.size / 1024).toFixed(1)} KB
-              </p>
-
-              {/* Upload Progress */}
-              {uploading && (
-                <div className="mt-2">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                    <span>Uploading...</span>
-                    <span>{uploadProgress}%</span>
-                  </div>
-                  <div className="w-full bg-secondary rounded-full h-2">
-                    <div
-                      className="bg-primary h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* CSV Import Status */}
-          {CSVImportWFTask && (
-            <div className="p-4 bg-muted/50 border rounded-lg">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-medium">Import Status</h4>
-                  <div className="flex items-center space-x-2">
-                    {CSVImportWFTask.status !== "DONE" && (
-                      <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin"></div>
-                    )}
-                    <div className="text-xs text-muted-foreground">
-                      {CSVImportWFTask.status === "CREATED" && "File Uploaded"}
-                      {CSVImportWFTask.status === "PROCESSING" &&
-                        "Processing CSV"}
-                      {CSVImportWFTask.status === "DONE" && "Import Complete"}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Overall Progress Bar */}
-                <div>
-                  <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary rounded-full transition-all duration-700 ease-out"
-                      style={{
-                        width: `${
-                          CSVImportWFTask.status === "CREATED"
-                            ? "33%"
-                            : CSVImportWFTask.status === "PROCESSING"
-                              ? "66%"
-                              : CSVImportWFTask.status === "DONE"
-                                ? "100%"
-                                : "0%"
-                        }`,
-                      }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>Progress</span>
-                    <span>
-                      {CSVImportWFTask.status === "CREATED"
-                        ? "33%"
-                        : CSVImportWFTask.status === "PROCESSING"
-                          ? "66%"
-                          : CSVImportWFTask.status === "DONE"
-                            ? "100%"
-                            : "0%"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Actions */}
           {file && (
             <div className="flex gap-2">
@@ -277,6 +201,84 @@ export const UploadLeadsModal = ({
                 Remove
               </Button>
             </div>
+          )}
+
+          {/* File Info */}
+          {file && (
+            <div className="p-3 bg-muted border rounded">
+              <p className="text-sm font-medium">{file.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {(file.size / 1024).toFixed(1)} KB
+              </p>
+              {/* Upload Progress */}
+              {uploading && (
+                <div className="mt-2">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                    <span>Uploading...</span>
+                    <span>{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-2">
+                    <div
+                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {CSVImportWFTask ? (
+            <>
+              <div className="flex items-center space-x-2">
+                {CSVImportWFTask.status !== "DONE" && (
+                  <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin"></div>
+                )}
+                <div className="text-xs text-muted-foreground">
+                  {CSVImportWFTask.status === "CREATED" && "File Uploaded"}
+                  {CSVImportWFTask.status === "PROCESSING" && "Processing CSV"}
+                  {CSVImportWFTask.status === "DONE" && "Import Complete"}
+                </div>
+              </div>
+
+              {/* Overall Progress Bar */}
+              <div>
+                <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full transition-all duration-700 ease-out"
+                    style={{
+                      width: `${
+                        CSVImportWFTask.status === "CREATED"
+                          ? "33%"
+                          : CSVImportWFTask.status === "PROCESSING"
+                            ? "66%"
+                            : CSVImportWFTask.status === "DONE"
+                              ? "100%"
+                              : "0%"
+                      }`,
+                    }}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                  <span>Progress</span>
+                  <span>
+                    {CSVImportWFTask.status === "CREATED"
+                      ? "33%"
+                      : CSVImportWFTask.status === "PROCESSING"
+                        ? "66%"
+                        : CSVImportWFTask.status === "DONE"
+                          ? "100%"
+                          : "0%"}
+                  </span>
+                </div>
+              </div>
+            </>
+          ) : storageId ? (
+            <div className="text-xs text-muted-foreground">
+              Starting CSV Import...
+            </div>
+          ) : (
+            ""
           )}
         </div>
       </DialogContent>

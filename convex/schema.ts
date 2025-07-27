@@ -19,4 +19,12 @@ export default defineSchema({
     storageId: v.id("_storage"),
     status: v.string(),
   }),
+  leads: defineTable({
+    name: v.string(),
+    email: v.string(),
+    company: v.string(),
+    category: v.string(),
+    imported_by: v.id("users"),
+    imported_at: v.number(),
+  }).index("byEmail", ["email"]),
 });

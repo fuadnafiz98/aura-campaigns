@@ -1,18 +1,15 @@
 import { v } from "convex/values";
 import { workflow } from ".";
-import {
-  action,
-  internalAction,
-  internalMutation,
-  query,
-} from "./_generated/server";
+import { action, internalMutation, query } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { WorkflowId } from "@convex-dev/workflow";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const CSVImportWF = workflow.define({
   args: {
     storageId: v.id("_storage"),
+    userId: v.id("users"),
   },
   handler: async (step, args): Promise<Id<"CSVWFTasks">> => {
     const WFTaskId = await step.runMutation(
@@ -27,7 +24,10 @@ export const CSVImportWF = workflow.define({
       status: "PROCESSING",
     });
 
-    await step.runAction(internal.csvWorkflow.parseCSVData, {});
+    await step.runAction(internal.praseCSV.parseCSVData, {
+      storageId: args.storageId,
+      userId: args.userId,
+    });
 
     await step.runMutation(internal.csvWorkflow.updateCSVImportWFTask, {
       storageId: args.storageId,
@@ -69,10 +69,32 @@ export const updateCSVImportWFTask = internalMutation({
   },
 });
 
-export const parseCSVData = internalAction({
-  args: {},
-  handler: async () => {
-    await new Promise((resolve) => setInterval(resolve, 3000));
+// Add the batch insert mutation
+export const insertCSVBatch = internalMutation({
+  args: {
+    records: v.array(
+      v.object({
+        name: v.string(),
+        email: v.string(),
+        company: v.string(),
+        category: v.string(),
+      }),
+    ),
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    console.log("pushing to db");
+
+    for (const record of args.records) {
+      await ctx.db.insert("leads", {
+        name: record.name,
+        email: record.email,
+        company: record.company,
+        category: record.category,
+        imported_by: args.userId,
+        imported_at: Date.now(),
+      });
+    }
   },
 });
 
@@ -81,11 +103,14 @@ export const KSCSVImportWf = action({
     storageId: v.id("_storage"),
   },
   handler: async (ctx, args): Promise<WorkflowId> => {
+    const userId = await getAuthUserId(ctx);
+
     const workflowId = await workflow.start(
       ctx,
       internal.csvWorkflow.CSVImportWF,
       {
         storageId: args.storageId,
+        userId: userId!,
       },
     );
     return workflowId;
