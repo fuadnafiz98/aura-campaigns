@@ -2,6 +2,7 @@
 import { v } from "convex/values";
 import { query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 // Query to get a paginated, filtered, and sorted list of leads
 export const getLeads = query({
@@ -10,7 +11,10 @@ export const getLeads = query({
     sortBy: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const leadsQuery = ctx.db.query("leads");
+    const userId = await getAuthUserId(ctx);
+    const leadsQuery = ctx.db
+      .query("leads")
+      .filter((q) => q.eq(q.field("imported_by"), userId));
 
     const leads = await leadsQuery.paginate(args.paginationOpts);
     return leads;

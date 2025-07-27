@@ -79,21 +79,3 @@ export const myAction = action({
     });
   },
 });
-
-export const listLeads = query({
-  args: {
-    offset: v.number(),
-  },
-
-  handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    const leads = await ctx.db
-      .query("leads")
-      .order("desc")
-      .filter((q) => q.eq(q.field("imported_by"), userId))
-      .take(args.offset);
-    return {
-      leads,
-    };
-  },
-});
