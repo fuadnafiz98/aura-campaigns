@@ -90,7 +90,7 @@ export const LeadsPage = () => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-sm">Leads</CardTitle>
-            <CardDescription className="text-xs">
+            <CardDescription className="text-sm">
               {/* Display loaded vs total count */}
               Showing {leads.length} of {totalLeadsCount ?? 0} leads found
             </CardDescription>
@@ -100,13 +100,13 @@ export const LeadsPage = () => {
           <div className="flex items-center gap-2">
             {selectedCount > 0 && (
               <div className="flex items-center gap-1">
-                <span className="text-xs text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   {selectedCount} selected
                 </span>
                 {/* <Button
                   size="sm"
                   variant="outline"
-                  className="h-10 text-xs bg-transparent hover:bg-accent border-border cursor-pointer"
+                  className="h-10 text-sm bg-transparent hover:bg-accent border-border cursor-pointer"
                 >
                   Bulk Email
                 </Button> */}
@@ -116,7 +116,7 @@ export const LeadsPage = () => {
               size="sm"
               variant="outline"
               onClick={() => setIsImportModalOpen(true)}
-              className="w-24 h-10 border-border text-xs bg-transparent cursor-pointer"
+              className="w-24 h-10 border-border text-sm bg-transparent cursor-pointer"
             >
               <Upload className="h-3 w-3 mr-1" />
               Import
@@ -124,7 +124,7 @@ export const LeadsPage = () => {
 
             {/* Filter by Category */}
             <Select value={filterCategory} onValueChange={setFilterCategory}>
-              <SelectTrigger className="w-24 h-7 cursor-pointer border-border text-xs">
+              <SelectTrigger className="w-24 h-7 cursor-pointer border-border text-sm">
                 <Filter className="h-3 w-3 mr-1" />
                 <SelectValue />
               </SelectTrigger>
@@ -138,7 +138,7 @@ export const LeadsPage = () => {
 
             {/* Sort By */}
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-28 cursor-pointer h-7 border-border text-xs">
+              <SelectTrigger className="w-28 cursor-pointer h-7 border-border text-sm">
                 <ArrowUpDown className="h-3 w-3 mr-1" />
                 <SelectValue />
               </SelectTrigger>
@@ -167,11 +167,11 @@ export const LeadsPage = () => {
                   aria-label="Select all leads on this page"
                 />
               </TableHead>
-              <TableHead className="text-xs">Name</TableHead>
-              <TableHead className="text-xs">Email</TableHead>
-              <TableHead className="text-xs">Company</TableHead>
-              <TableHead className="text-xs">Category</TableHead>
-              <TableHead className="text-xs text-right">Actions</TableHead>
+              <TableHead className="text-sm">Name</TableHead>
+              <TableHead className="text-sm">Email</TableHead>
+              <TableHead className="text-sm">Company</TableHead>
+              <TableHead className="text-sm">Category</TableHead>
+              <TableHead className="text-sm text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -195,13 +195,13 @@ export const LeadsPage = () => {
                       aria-label={`Select ${lead.name}`}
                     />
                   </TableCell>
-                  <TableCell className="font-medium text-xs">
+                  <TableCell className="font-medium text-sm">
                     {lead.name}
                   </TableCell>
-                  <TableCell className="text-xs">{lead.email}</TableCell>
-                  <TableCell className="text-xs">{lead.company}</TableCell>
+                  <TableCell className="text-sm">{lead.email}</TableCell>
+                  <TableCell className="text-sm">{lead.company}</TableCell>
                   <TableCell>
-                    <Badge className={`text-xs py-0 px-1`}>
+                    <Badge className={`text-sm py-0 px-1`}>
                       {lead.category}
                     </Badge>
                   </TableCell>
@@ -224,7 +224,7 @@ export const LeadsPage = () => {
           )}
           {status === "LoadingMore" && <>Loading...</>}
           {status === "Exhausted" && leads.length > 0 && (
-            <p className="text-xs text-muted-foreground">No more leads</p>
+            <p className="text-sm text-muted-foreground">No more leads</p>
           )}
         </div>
       </CardContent>
