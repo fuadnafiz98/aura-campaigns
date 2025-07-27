@@ -131,36 +131,36 @@
 }
 
 :root {
-  --background: oklch(0.1822 0 0);
+  --background: oklch(0.14 0 0); /* Even Darker */
   --foreground: oklch(0.9288 0.0126 255.5078);
-  --card: oklch(0.2046 0 0);
+  --card: oklch(0.16 0 0); /* Even Darker */
   --card-foreground: oklch(0.9288 0.0126 255.5078);
-  --popover: oklch(0.2603 0 0);
+  --popover: oklch(0.2 0 0); /* Even Darker */
   --popover-foreground: oklch(0.7348 0 0);
   --primary: oklch(0.4365 0.1044 156.7556);
   --primary-foreground: oklch(0.9213 0.0135 167.1556);
-  --secondary: oklch(0.2603 0 0);
+  --secondary: oklch(0.2 0 0); /* Even Darker */
   --secondary-foreground: oklch(0.9851 0 0);
-  --muted: oklch(0.2393 0 0);
+  --muted: oklch(0.18 0 0); /* Even Darker */
   --muted-foreground: oklch(0.7122 0 0);
-  --accent: oklch(0.3132 0 0);
+  --accent: oklch(0.25 0 0); /* Even Darker */
   --accent-foreground: oklch(0.9851 0 0);
   --destructive: oklch(0.3123 0.0852 29.7877);
-  --border: oklch(0.2809 0 0);
-  --input: oklch(0.2603 0 0);
+  --border: oklch(0.22 0 0); /* Even Darker */
+  --input: oklch(0.2 0 0); /* Even Darker */
   --ring: oklch(0.8003 0.1821 151.711);
   --chart-1: oklch(0.8003 0.1821 151.711);
   --chart-2: oklch(0.7137 0.1434 254.624);
   --chart-3: oklch(0.709 0.1592 293.5412);
   --chart-4: oklch(0.8369 0.1644 84.4286);
   --chart-5: oklch(0.7845 0.1325 181.912);
-  --sidebar: oklch(0.1822 0 0);
+  --sidebar: oklch(0.14 0 0); /* Even Darker */
   --sidebar-foreground: oklch(0.6301 0 0);
   --sidebar-primary: oklch(0.4365 0.1044 156.7556);
   --sidebar-primary-foreground: oklch(0.9213 0.0135 167.1556);
-  --sidebar-accent: oklch(0.3132 0 0);
+  --sidebar-accent: oklch(0.25 0 0); /* Even Darker */
   --sidebar-accent-foreground: oklch(0.9851 0 0);
-  --sidebar-border: oklch(0.2809 0 0);
+  --sidebar-border: oklch(0.22 0 0); /* Even Darker */
   --sidebar-ring: oklch(0.8003 0.1821 151.711);
   --destructive-foreground: oklch(0.9368 0.0045 34.3092);
   --radius: 0.5rem;
@@ -201,12 +201,12 @@
 }
 
 .dark {
-  --sidebar: hsl(240 5.9% 10%);
+  --sidebar: hsl(240 5.9% 6%); /* Even Darker */
   --sidebar-foreground: hsl(240 4.8% 95.9%);
   --sidebar-primary: hsl(224.3 76.3% 48%);
   --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent: hsl(240 3.7% 11.9%); /* Even Darker */
   --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-border: hsl(240 3.7% 11.9%); /* Even Darker */
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }

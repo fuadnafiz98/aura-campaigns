@@ -103,13 +103,13 @@ export const LeadsPage = () => {
                 <span className="text-xs text-muted-foreground">
                   {selectedCount} selected
                 </span>
-                <Button
+                {/* <Button
                   size="sm"
                   variant="outline"
                   className="h-10 text-xs bg-transparent hover:bg-accent border-border cursor-pointer"
                 >
                   Bulk Email
-                </Button>
+                </Button> */}
               </div>
             )}
             <Button
