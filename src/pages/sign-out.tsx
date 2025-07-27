@@ -20,3 +20,5 @@ export function SignOutPage() {
 
   return <div>Signing out...</div>;
 }
+
+export default SignOutPage;

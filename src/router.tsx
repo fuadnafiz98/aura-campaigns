@@ -5,14 +5,16 @@ import {
   Route,
   RouterProvider,
 } from "react-router-dom";
-import App from "./App";
-import { SignInPage } from "./pages/sign-in";
+import React, { Suspense } from "react";
 
-import { SignOutPage } from "./pages/sign-out";
+import App from "./App";
 import { Skeleton } from "./components/ui/skeleton";
-import WithSideBar from "./components/with-sidebar";
-import { LeadsPage } from "./pages/leads";
-import EmailCampaignFlow from "./pages/campaigns";
+
+const SignInPage = React.lazy(() => import("./pages/sign-in"));
+const SignOutPage = React.lazy(() => import("./pages/sign-out"));
+const LeadsPage = React.lazy(() => import("./pages/leads"));
+const EmailCampaignFlow = React.lazy(() => import("./pages/campaigns"));
+const WithSideBar = React.lazy(() => import("./components/with-sidebar"));
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -30,7 +32,9 @@ const router = createBrowserRouter(
               </WithSideBar>
             </Authenticated>
             <Unauthenticated>
-              <SignInPage />
+              <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                <SignInPage />
+              </Suspense>
             </Unauthenticated>
           </>
         }
@@ -43,7 +47,9 @@ const router = createBrowserRouter(
               <Skeleton className="h-full m-4" />
             </AuthLoading>
             <Unauthenticated>
-              <SignInPage />
+              <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                <SignInPage />
+              </Suspense>
             </Unauthenticated>
           </>
         }
@@ -72,7 +78,9 @@ const router = createBrowserRouter(
                 <Skeleton className="h-full m-4" />
               </AuthLoading>
               <Authenticated>
-                <LeadsPage />
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  <LeadsPage />
+                </Suspense>
               </Authenticated>
             </>
           </WithSideBar>
@@ -87,13 +95,22 @@ const router = createBrowserRouter(
                 <Skeleton className="h-full m-4" />
               </AuthLoading>
               <Authenticated>
-                <EmailCampaignFlow />
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  <EmailCampaignFlow />
+                </Suspense>
               </Authenticated>
             </>
           </WithSideBar>
         }
       />
-      <Route path="signout" element={<SignOutPage />} />
+      <Route
+        path="signout"
+        element={
+          <Suspense fallback={<Skeleton className="h-full m-4" />}>
+            <SignOutPage />
+          </Suspense>
+        }
+      />
     </Route>,
   ),
 );

@@ -236,3 +236,5 @@ export const LeadsPage = () => {
     </Card>
   );
 };
+
+export default LeadsPage;
