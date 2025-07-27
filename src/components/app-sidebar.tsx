@@ -13,19 +13,46 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { Zap, Home, Users, Megaphone } from "lucide-react";
+import { HomeIcon } from "./ui/home";
+import { Zap } from "lucide-react";
+import { UsersIcon } from "./ui/users";
+import { PartyPopperIcon } from "./ui/party-popper";
 
-const data = {
+interface IconHandle {
+  startAnimation: () => void;
+  stopAnimation: () => void;
+}
+
+export const data = {
   navMain: [
     {
-      title: "Main",
+      title: "",
       items: [
-        { title: "Dashboard", url: "/dashboard", icon: Home },
-        { title: "Leads", url: "/leads", icon: Users },
-        { title: "Campaigns", url: "/campaigns", icon: Megaphone },
+        {
+          title: "Dashboard",
+          url: "/dashboard",
+          icon: HomeIcon,
+        },
+        { title: "Leads", url: "/leads", icon: UsersIcon },
+        { title: "Campaigns", url: "/campaigns", icon: PartyPopperIcon },
       ],
     },
   ],
+};
+
+const DisplayMenuItem = ({ item }: { item: any }) => {
+  const iconRef = React.useRef<IconHandle>(null);
+
+  return (
+    <div
+      className="flex items-center space-x-2 px-4 py-2 hover:bg-muted rounded-lg"
+      onMouseEnter={() => iconRef.current?.startAnimation()}
+      onMouseLeave={() => iconRef.current?.stopAnimation()}
+    >
+      <item.icon size={18} ref={iconRef}></item.icon>
+      <span className="text-base">{item.title}</span>
+    </div>
+  );
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -48,10 +75,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <NavLink to={item.url} end>
                       {({ isActive }) => (
                         <SidebarMenuButton asChild isActive={isActive}>
-                          <div className="flex items-center space-x-2">
-                            <item.icon className="size-4" />
-                            <span>{item.title}</span>
-                          </div>
+                          <DisplayMenuItem item={item} />
                         </SidebarMenuButton>
                       )}
                     </NavLink>

@@ -19,6 +19,8 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    // "nofloa"
+
     /* Import paths */
     "baseUrl": ".",
     "paths": {
