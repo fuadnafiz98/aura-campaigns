@@ -17,6 +17,7 @@ import { HomeIcon } from "./ui/home";
 import { Zap } from "lucide-react";
 import { UsersIcon } from "./ui/users";
 import { PartyPopperIcon } from "./ui/party-popper";
+import Plane from "../../public/plane.svg";
 
 interface IconHandle {
   startAnimation: () => void;
@@ -39,14 +40,25 @@ export const data = {
   ],
 };
 
-const DisplayMenuItem = ({ item }: { item: any }) => {
+const DisplayMenuItem = ({
+  item,
+  className = "",
+  ...props
+}: {
+  item: any;
+  className?: string;
+} & React.HTMLAttributes<HTMLDivElement>) => {
   const iconRef = React.useRef<IconHandle>(null);
 
   return (
     <div
-      className="flex items-center space-x-2 px-4 py-2 hover:bg-muted rounded-lg"
+      className={
+        "flex items-center space-x-2 px-4 py-2 hover:bg-muted rounded-lg " +
+        className
+      }
       onMouseEnter={() => iconRef.current?.startAnimation()}
       onMouseLeave={() => iconRef.current?.stopAnimation()}
+      {...props}
     >
       <item.icon size={16} ref={iconRef}></item.icon>
       <span className="text-sm">{item.title}</span>
@@ -57,9 +69,13 @@ const DisplayMenuItem = ({ item }: { item: any }) => {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
-      <SidebarHeader className="flex flex-row items-center space-x-2">
-        <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-          <Zap className="size-4" />
+      <SidebarHeader className="flex flex-row items-center space-x-1 mx-3">
+        <div className="flex h-12 items-center justify-center rounded-lg overflow-hidden">
+          <img
+            src={Plane}
+            className="w-7 h-7 object-contain mx-auto"
+            alt="Logo"
+          />
         </div>
         <span className="font-medium">Aura Campaigns</span>
       </SidebarHeader>

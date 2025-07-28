@@ -24,7 +24,12 @@ const router = createBrowserRouter(
         element={
           <>
             <AuthLoading>
-              <Skeleton className="h-full m-4" />
+              <div className="flex flex-col items-center justify-center h-screen w-full">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                <span className="text-muted-foreground text-base font-medium">
+                  Loading ...
+                </span>
+              </div>
             </AuthLoading>
             <Authenticated>
               <WithSideBar label="Dashboard">
