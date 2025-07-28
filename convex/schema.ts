@@ -10,15 +10,18 @@ export default defineSchema({
   numbers: defineTable({
     value: v.number(),
   }),
+
   files: defineTable({
     body: v.string(),
     author: v.string(),
     format: v.string(),
   }),
+
   CSVWFTasks: defineTable({
     storageId: v.id("_storage"),
     status: v.string(),
   }),
+
   leads: defineTable({
     name: v.string(),
     email: v.string(),
@@ -27,4 +30,13 @@ export default defineSchema({
     imported_by: v.id("users"),
     imported_at: v.number(),
   }).index("byEmail", ["email"]),
+
+  campaigns: defineTable({
+    name: v.string(),
+    targetAudience: v.string(),
+    status: v.string(),
+    createdAt: v.number(),
+    createdBy: v.id("users"),
+    updatedAt: v.optional(v.number()),
+  }).index("byStatus", ["status"]),
 });

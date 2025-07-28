@@ -37,11 +37,13 @@
     "framer-motion": "^12.23.9",
     "lucide-react": "^0.525.0",
     "motion": "^12.23.9",
+    "next-themes": "^0.4.6",
     "papaparse": "^5.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.61.1",
     "react-router-dom": "^7.7.1",
+    "sonner": "^2.0.6",
     "state": "link:@tiptap/pm/state",
     "tailwind-merge": "^3.3.1",
     "zod": "^4.0.8"

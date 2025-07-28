@@ -9,6 +9,7 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as campaigns from "../campaigns.js";
 import type * as csvWorkflow from "../csvWorkflow.js";
 import type * as fileUpload from "../fileUpload.js";
 import type * as http from "../http.js";
@@ -35,6 +36,7 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  campaigns: typeof campaigns;
   csvWorkflow: typeof csvWorkflow;
   fileUpload: typeof fileUpload;
   http: typeof http;

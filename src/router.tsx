@@ -13,8 +13,11 @@ import { Skeleton } from "./components/ui/skeleton";
 const SignInPage = React.lazy(() => import("./pages/sign-in"));
 const SignOutPage = React.lazy(() => import("./pages/sign-out"));
 const LeadsPage = React.lazy(() => import("./pages/leads"));
-const EmailCampaignFlow = React.lazy(() => import("./pages/campaigns"));
+const EmailCampaignFlow = React.lazy(
+  () => import("./pages/campaigns/campaigns"),
+);
 const WithSideBar = React.lazy(() => import("./components/with-sidebar"));
+const CampaignsPage = React.lazy(() => import("./pages/campaigns/list"));
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -95,6 +98,23 @@ const router = createBrowserRouter(
         path="campaigns"
         element={
           <WithSideBar label="Campaigns">
+            <>
+              <AuthLoading>
+                <Skeleton className="h-full m-4" />
+              </AuthLoading>
+              <Authenticated>
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  <CampaignsPage />
+                </Suspense>
+              </Authenticated>
+            </>
+          </WithSideBar>
+        }
+      />
+      <Route
+        path="campaigns/:campaignId"
+        element={
+          <WithSideBar label="Campaign Details">
             <>
               <AuthLoading>
                 <Skeleton className="h-full m-4" />
