@@ -26,7 +26,6 @@ interface IconHandle {
 export const data = {
   navMain: [
     {
-      title: "",
       items: [
         {
           title: "Dashboard",
@@ -49,8 +48,8 @@ const DisplayMenuItem = ({ item }: { item: any }) => {
       onMouseEnter={() => iconRef.current?.startAnimation()}
       onMouseLeave={() => iconRef.current?.stopAnimation()}
     >
-      <item.icon size={18} ref={iconRef}></item.icon>
-      <span className="text-base">{item.title}</span>
+      <item.icon size={16} ref={iconRef}></item.icon>
+      <span className="text-sm">{item.title}</span>
     </div>
   );
 };
@@ -65,9 +64,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <span className="font-medium">Aura Campaigns</span>
       </SidebarHeader>
       <SidebarContent>
-        {data.navMain.map((group) => (
-          <SidebarGroup key={group.title}>
-            <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
+        {data.navMain.map((group, index) => (
+          <SidebarGroup key={index}>
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => (
