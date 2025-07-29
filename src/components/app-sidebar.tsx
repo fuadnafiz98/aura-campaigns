@@ -6,7 +6,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -14,10 +13,9 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { HomeIcon } from "./ui/home";
-import { Zap } from "lucide-react";
 import { UsersIcon } from "./ui/users";
 import { PartyPopperIcon } from "./ui/party-popper";
-import Plane from "../../public/plane.svg";
+import Plane from "@/assets/plane.svg";
 
 interface IconHandle {
   startAnimation: () => void;

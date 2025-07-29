@@ -1,97 +1,104 @@
 import { useState, useCallback } from "react";
 import { Reorder, AnimatePresence } from "framer-motion";
-import { ArrowLeft, MoveLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { EmailEditDialog } from "@/components/modals/campaigns/edit-email";
 import { ParticleLine } from "@/components/animations/partical-line";
 import { EmailCard } from "@/components/campaigns/email-card";
-import { Email } from "@/types";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "#/_generated/api";
+import { Doc, Id } from "#/_generated/dataModel";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+
+type Email = Doc<"emails">;
 
 export default function EmailCampaignFlow() {
-  const [emails, setEmails] = useState<Email[]>([
-    {
-      id: "1",
-      subject: "Welcome to our platform",
-      body: "body",
-      delay: 0,
-      delayUnit: "minutes",
-    },
-    {
-      id: "2",
-      subject: "Getting started guide",
-      delay: 1,
-      delayUnit: "days",
-
-      body: "body",
-    },
-    {
-      id: "3",
-      subject: "Pro tips for success",
-      delay: 3,
-      delayUnit: "days",
-
-      body: "body",
-    },
-    {
-      id: "4",
-      subject: "Check out our new features",
-      delay: 7,
-      delayUnit: "days",
-      body: "body",
-    },
-  ]);
-
-  const [editingEmail, setEditingEmail] = useState<Email | null>(null);
-
-  const handleReorder = useCallback((newOrder: Email[]) => {
-    setEmails(newOrder);
-  }, []);
-
-  const handleEdit = useCallback(
-    (id: string) => {
-      const emailToEdit = emails.find((e) => e.id === id);
-      if (emailToEdit) {
-        setEditingEmail(emailToEdit);
-      }
-    },
-    [emails],
+  const { campaignId } = useParams();
+  const emails = useQuery(
+    api.emails.emailsList,
+    campaignId
+      ? {
+          campaignId: campaignId as Id<"campaigns">,
+        }
+      : "skip",
   );
-  const handleDialogClose = useCallback(() => {
-    setEditingEmail(null);
-  }, []);
 
-  const handleSaveEmail = useCallback((updatedEmail: Email) => {
-    setEmails((currentEmails) =>
-      currentEmails.map((email) =>
-        email.id === updatedEmail.id ? updatedEmail : email,
-      ),
-    );
-    setEditingEmail(null); // Close the dialog after saving
-  }, []);
+  const createEmail = useMutation(api.emails.createEmail);
 
-  const handleDelete = useCallback((id: string) => {
-    setEmails((currentEmails) =>
-      currentEmails.filter((email) => email.id !== id),
-    );
-  }, []);
+  const [loading, setLoading] = useState(false);
+
+  const updateEmailOrdering = useMutation(
+    api.emails.updateEmail,
+  ).withOptimisticUpdate((localStore, args) => {
+    const { ordering: newOrdering, id: emailId, campaignId } = args;
+    if (!campaignId || !newOrdering || !emailId) {
+      console.error("Campaign ID, new ordering, and email ID are required");
+      return;
+    }
+    const currentEmails = localStore.getQuery(api.emails.emailsList, {
+      campaignId,
+    });
+
+    if (currentEmails !== undefined) {
+      const updatedEmails = currentEmails
+        .map((email) =>
+          email._id === emailId ? { ...email, ordering: newOrdering } : email,
+        )
+        .sort((a, b) => {
+          return a.ordering - b.ordering;
+        });
+
+      localStore.setQuery(api.emails.emailsList, { campaignId }, updatedEmails);
+    }
+  });
+
+  const handleReorder = useCallback(
+    (newOrder: Email[]) => {
+      Promise.all(
+        newOrder.map((email, index) => {
+          const newOrdering = index + 1;
+          if (email.ordering !== newOrdering) {
+            return updateEmailOrdering({
+              id: email._id,
+              ordering: newOrdering,
+              campaignId: campaignId as Id<"campaigns">,
+            });
+          }
+        }),
+      );
+    },
+    [campaignId, updateEmailOrdering],
+  );
+
+  // const handleReorder = (newOrder: Email[]) => {
+  //   newOrder.forEach((email, index) => {
+  //     updateEmail({
+  //       id: email._id,
+  //       ordering: index + 1,
+  //     });
+  //   });
+  // };
 
   const handleAddEmail = useCallback(() => {
-    const newEmail: Email = {
-      id: Date.now().toString(),
+    setLoading(true);
+    createEmail({
+      campaignId: campaignId as Id<"campaigns">,
       subject: "New Email",
+      body: "",
       delay: 1,
       delayUnit: "days",
-      body: "",
-    };
-    setEmails((currentEmails) => [...currentEmails, newEmail]);
-  }, []);
+      ordering: (emails?.length ?? 0) + 1,
+    }).finally(() => {
+      setLoading(false);
+      toast.success("Email created successfully");
+    });
+  }, [campaignId, createEmail, emails?.length]);
+
+  if (!emails) {
+    return <Skeleton className="m-4 max-w-full h-full" />;
+  }
 
   return (
     <>
@@ -125,13 +132,7 @@ export default function EmailCampaignFlow() {
           >
             <AnimatePresence>
               {emails.map((email, index) => (
-                <EmailCard
-                  key={email.id}
-                  email={email}
-                  index={index}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                />
+                <EmailCard key={email._id} email={email} index={index} />
               ))}
             </AnimatePresence>
           </Reorder.Group>
@@ -140,19 +141,22 @@ export default function EmailCampaignFlow() {
         <div className="flex items-center justify-center w-full my-6">
           <Button
             onClick={handleAddEmail}
+            disabled={loading}
             className="cursor-pointer bg-primary hover:bg-primary/80 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/30"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Email
+            {loading ? (
+              <>
+                <LoadingSpinner size="sm" />
+                Creating email...
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Email
+              </>
+            )}
           </Button>
         </div>
-        {/* Can we move it to Email Card? */}
-        <EmailEditDialog
-          initialEmail={editingEmail}
-          isOpen={!!editingEmail}
-          onOpenChange={(isOpen) => !isOpen && handleDialogClose()}
-          onSave={handleSaveEmail}
-        />
       </div>
     </>
   );

@@ -39,4 +39,18 @@ export default defineSchema({
     createdBy: v.id("users"),
     updatedAt: v.optional(v.number()),
   }).index("byStatus", ["status"]),
+
+  emails: defineTable({
+    subject: v.string(),
+    body: v.string(),
+    delay: v.number(),
+    delayUnit: v.string(),
+    createdAt: v.number(),
+    createdBy: v.id("users"),
+    updatedAt: v.optional(v.number()),
+    campaignId: v.id("campaigns"),
+    ordering: v.number(),
+  })
+    .index("byCampaign", ["campaignId"])
+    .index("ordering", ["ordering"]),
 });

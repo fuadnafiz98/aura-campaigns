@@ -17,8 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Email } from "@/types";
 import { Editor } from "@/components/tiptap/tiptap";
+import { Doc } from "#/_generated/dataModel";
+
+type Email = Doc<"emails">;
 
 interface EmailEditDialogProps {
   initialEmail: Email | null;

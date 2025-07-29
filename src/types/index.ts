@@ -1,5 +1,6 @@
 export interface Email {
-  id: string;
+  _id?: string;
+  id?: string;
   subject: string;
   body: string;
   delay: number;
