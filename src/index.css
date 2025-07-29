@@ -280,3 +280,46 @@
   pointer-events: none;
   height: 0;
 }
+
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 1.5em;
+  color: var(--foreground, #222);
+}
+.prose ol > li {
+  position: relative;
+  margin-bottom: 0.25em;
+  font-weight: 500;
+}
+.prose ol > li:before {
+  color: var(--accent, #7c3aed);
+  font-weight: bold;
+}
+.dark .prose ol {
+  color: var(--foreground-dark, #e5e7eb);
+}
+.dark .prose ol > li:before {
+  color: var(--accent-dark, #a5b4fc);
+}
+
+/* Advanced prose unordered list styles */
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+  color: var(--foreground, #222);
+}
+.prose ul > li {
+  position: relative;
+  margin-bottom: 0.25em;
+  font-weight: 500;
+}
+.prose ul > li::marker {
+  color: var(--accent, #7c3aed);
+  font-size: 1.1em;
+}
+.dark .prose ul {
+  color: var(--foreground-dark, #e5e7eb);
+}
+.dark .prose ul > li::marker {
+  color: var(--accent-dark, #a5b4fc);
+}

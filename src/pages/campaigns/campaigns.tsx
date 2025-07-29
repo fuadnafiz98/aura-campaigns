@@ -96,10 +96,6 @@ export default function EmailCampaignFlow() {
     });
   }, [campaignId, createEmail, emails?.length]);
 
-  if (!emails) {
-    return <Skeleton className="m-4 max-w-full h-full" />;
-  }
-
   return (
     <>
       <div className="mx-16 mt-4">
@@ -121,42 +117,53 @@ export default function EmailCampaignFlow() {
           </p>
         </div>
 
-        <div className="relative">
-          <ParticleLine count={emails.length} />
+        {!emails ? (
+          <>
+            <LoadingSpinner className="w-8 h-8 mx-auto" />
+            <p className="text-center text-muted-foreground mt-4">
+              Loading emails...
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="relative">
+              <ParticleLine count={emails.length} />
 
-          <Reorder.Group
-            axis="y"
-            values={emails}
-            onReorder={handleReorder}
-            className="space-y-8"
-          >
-            <AnimatePresence>
-              {emails.map((email, index) => (
-                <EmailCard key={email._id} email={email} index={index} />
-              ))}
-            </AnimatePresence>
-          </Reorder.Group>
-        </div>
+              <Reorder.Group
+                axis="y"
+                values={emails}
+                onReorder={handleReorder}
+                className="space-y-8"
+              >
+                <AnimatePresence>
+                  {emails.map((email, index) => (
+                    <EmailCard key={email._id} email={email} index={index} />
+                  ))}
+                </AnimatePresence>
+              </Reorder.Group>
+            </div>
 
-        <div className="flex items-center justify-center w-full my-6">
-          <Button
-            onClick={handleAddEmail}
-            disabled={loading}
-            className="cursor-pointer bg-primary hover:bg-primary/80 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/30"
-          >
-            {loading ? (
-              <>
-                <LoadingSpinner size="sm" />
-                Creating email...
-              </>
-            ) : (
-              <>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Email
-              </>
-            )}
-          </Button>
-        </div>
+            <div className="flex items-center justify-center w-full my-6">
+              <Button
+                onClick={handleAddEmail}
+                disabled={loading}
+                className="cursor-pointer bg-primary hover:bg-primary/80 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/30"
+              >
+                {loading ? (
+                  <>
+                    <LoadingSpinner size="sm" />
+                    Creating email...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Email
+                  </>
+                )}
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </>
   );

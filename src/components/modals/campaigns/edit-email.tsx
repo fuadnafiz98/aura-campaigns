@@ -110,7 +110,7 @@ export const EmailEditDialog = ({
             </div>
           </div>
 
-          <div className="grid w-full gap-2">
+          <div className="grid w-full gap-4">
             <Label>Email Body</Label>
             <div className="rounded-md border border-input">
               <Editor />

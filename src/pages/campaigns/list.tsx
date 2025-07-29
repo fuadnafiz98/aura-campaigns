@@ -29,7 +29,7 @@ import {
 import { Plus, Filter, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { CreateCampaignModal } from "@/components/modals/campaigns/create-campaign";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 type Campaign = Doc<"campaigns">;
 
@@ -37,6 +37,8 @@ export const CampaignsPage = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   const {
     results: campaigns,
@@ -125,7 +127,6 @@ export const CampaignsPage = () => {
               <TableHead className="text-sm">Campaign Name</TableHead>
               <TableHead className="text-sm">Status</TableHead>
               <TableHead className="text-sm">Target Audience</TableHead>
-              <TableHead className="text-sm text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -147,41 +148,32 @@ export const CampaignsPage = () => {
                 <TableRow
                   key={campaign._id}
                   className="cursor-pointer hover:bg-accent"
+                  onClick={() => void navigate(`/campaigns/${campaign._id}/`)}
                 >
                   <TableCell className="font-medium text-sm">
                     {campaign.name}
                   </TableCell>
                   <TableCell>
                     <Badge
-                      variant={
-                        campaign.status === "active"
-                          ? "default"
+                      variant="outline"
+                      className={
+                        "text-sm py-0.5 px-2 " +
+                        (campaign.status === "active"
+                          ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
                           : campaign.status === "paused"
-                            ? "secondary"
+                            ? "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800"
                             : campaign.status === "completed"
-                              ? "outline"
-                              : "secondary"
+                              ? "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800"
+                              : campaign.status === "draft"
+                                ? "bg-gray-200 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-800"
+                                : "bg-muted text-muted-foreground border-border")
                       }
-                      className="text-sm py-0 px-1"
                     >
                       {campaign.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm">
                     {campaign.targetAudience}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Link to={`/campaigns/${campaign._id}/`}>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 px-2 text-sm cursor-pointer hover:underline"
-                        >
-                          Edit
-                        </Button>
-                      </Link>
-                    </div>
                   </TableCell>
                 </TableRow>
               ))
