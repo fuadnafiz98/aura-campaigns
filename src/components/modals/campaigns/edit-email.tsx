@@ -64,7 +64,12 @@ export const EmailEditDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[750px] bg-zinc-950 border-zinc-800">
+      <DialogContent
+        className="sm:max-w-[750px] bg-zinc-950 border-zinc-800"
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Edit Email</DialogTitle>
           <DialogDescription>

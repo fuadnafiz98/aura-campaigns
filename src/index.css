@@ -257,7 +257,7 @@
 
 .ProseMirror img {
   max-width: 100%;
-  height: auto;
+  height: 16rem;
   border-radius: var(--radius-sm);
 }
 
@@ -322,4 +322,74 @@
 }
 .dark .prose ul > li::marker {
   color: var(--accent-dark, #a5b4fc);
+}
+
+.scrollbar-theme,
+.prose,
+.ProseMirror,
+body {
+  scrollbar-color: var(--color-border) var(--color-card);
+}
+
+/* Webkit browsers */
+.scrollbar-theme::-webkit-scrollbar,
+.prose::-webkit-scrollbar,
+.ProseMirror::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: var(--color-card);
+}
+.scrollbar-theme::-webkit-scrollbar-thumb,
+.prose::-webkit-scrollbar-thumb,
+.ProseMirror::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 8px;
+  border: 2px solid var(--color-card);
+}
+.scrollbar-theme::-webkit-scrollbar-thumb:hover,
+.prose::-webkit-scrollbar-thumb:hover,
+.ProseMirror::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+.scrollbar-theme::-webkit-scrollbar-corner,
+.prose::-webkit-scrollbar-corner,
+.ProseMirror::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner {
+  background: var(--color-card);
+}
+
+.dark .scrollbar-theme,
+.dark .prose,
+.dark .ProseMirror,
+.dark body {
+  scrollbar-color: var(--color-border) var(--color-card);
+}
+.dark .scrollbar-theme::-webkit-scrollbar,
+.dark .prose::-webkit-scrollbar,
+.dark .ProseMirror::-webkit-scrollbar,
+.dark body::-webkit-scrollbar {
+  background: var(--color-card);
+}
+.dark .scrollbar-theme::-webkit-scrollbar-thumb,
+.dark .prose::-webkit-scrollbar-thumb,
+.dark .ProseMirror::-webkit-scrollbar-thumb,
+.dark body::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 8px;
+  border: 2px solid var(--color-card);
+}
+.dark .scrollbar-theme::-webkit-scrollbar-thumb:hover,
+.dark .prose::-webkit-scrollbar-thumb:hover,
+.dark .ProseMirror::-webkit-scrollbar-thumb:hover,
+.dark body::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+.dark .scrollbar-theme::-webkit-scrollbar-corner,
+.dark .prose::-webkit-scrollbar-corner,
+.dark .ProseMirror::-webkit-scrollbar-corner,
+.dark body::-webkit-scrollbar-corner {
+  background: var(--color-card);
 }

@@ -17,3 +17,12 @@ export const sendFile = mutation({
     });
   },
 });
+
+export const getImgUrl = mutation({
+  args: { storageId: v.id("_storage") },
+  handler: async (ctx, args) => {
+    const file = await ctx.storage.getUrl(args.storageId);
+    if (!file) throw new Error("File not found");
+    return file;
+  },
+});
