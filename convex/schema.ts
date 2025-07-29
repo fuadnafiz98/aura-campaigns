@@ -38,6 +38,8 @@ export default defineSchema({
     createdAt: v.number(),
     createdBy: v.id("users"),
     updatedAt: v.optional(v.number()),
+    scheduledAt: v.optional(v.number()),
+    schedulingStatus: v.optional(v.string()),
   }).index("byStatus", ["status"]),
 
   emails: defineTable({
