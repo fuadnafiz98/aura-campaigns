@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -18,15 +18,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Editor, EditorRef } from "@/components/tiptap/tiptap";
+import { Editor } from "@/components/tiptap/tiptap";
 import { Doc, Id } from "#/_generated/dataModel";
 import { Eye, Edit } from "lucide-react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "#/_generated/api";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { SendTestMail } from "./send-test-mail";
+import { SendDateDisplay } from "@/components/campaigns/send-date-display";
 
 type Email = Doc<"emails">;
 type EmailForm = Omit<
@@ -64,6 +65,10 @@ export const EmailEditDialog = ({
         delayUnit: email?.delayUnit || "days",
       },
     });
+
+  // Watch for changes in delay and delayUnit
+  const watchedDelay = useWatch({ control, name: "delay" });
+  const watchedDelayUnit = useWatch({ control, name: "delayUnit" });
 
   const [loading, setLoading] = useState(false);
 
@@ -140,49 +145,55 @@ export const EmailEditDialog = ({
 
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label className="text-right">When to send</Label>
-                  <div className="col-span-3 grid grid-cols-2 gap-2">
-                    <Input
-                      type="number"
-                      min="0"
-                      defaultValue={getValues("delay")}
-                      {...register("delay", { valueAsNumber: true })}
-                    />
-                    <Controller
-                      name="delayUnit"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select unit" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="minutes">Minutes</SelectItem>
-                            <SelectItem value="hours">Hours</SelectItem>
-                            <SelectItem value="days">Days</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
+                  <div className="col-span-3 space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        type="number"
+                        min="0"
+                        defaultValue={getValues("delay")}
+                        {...register("delay", { valueAsNumber: true })}
+                      />
+                      <Controller
+                        name="delayUnit"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select unit" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="minutes">Minutes</SelectItem>
+                              <SelectItem value="hours">Hours</SelectItem>
+                              <SelectItem value="days">Days</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+                    <SendDateDisplay
+                      delay={watchedDelay || 0}
+                      delayUnit={watchedDelayUnit || "days"}
                     />
                   </div>
                 </div>
 
                 <div className="grid w-full gap-4">
                   <Label>Email Body</Label>
-                  <Tabs className="w-full">
+                  <Tabs className="w-full" defaultValue="edit">
                     <TabsList className="grid w-full grid-cols-2">
                       <TabsTrigger
                         value="edit"
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 cursor-pointer"
                       >
                         <Edit className="h-4 w-4" />
                         Edit
                       </TabsTrigger>
                       <TabsTrigger
                         value="preview"
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 cursor-pointer"
                       >
                         <Eye className="h-4 w-4" />
                         Preview
