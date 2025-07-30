@@ -55,4 +55,22 @@ export default defineSchema({
   })
     .index("byCampaign", ["campaignId"])
     .index("ordering", ["ordering"]),
+
+  emailLogs: defineTable({
+    to: v.string(),
+    replyTo: v.optional(v.string()),
+    subject: v.string(),
+    body: v.string(),
+    resendId: v.string(), // Email ID from Resend service
+    status: v.string(), // waiting, queued, sent, delivered, bounced, failed, etc.
+    event: v.optional(v.string()), // Latest event type
+    errorMessage: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    sentBy: v.id("users"),
+  })
+    .index("byResendId", ["resendId"])
+    .index("byStatus", ["status"])
+    .index("byUser", ["sentBy"])
+    .index("byCreatedAt", ["createdAt"]),
 });

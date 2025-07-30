@@ -11,6 +11,7 @@
 import type * as auth from "../auth.js";
 import type * as campaigns from "../campaigns.js";
 import type * as csvWorkflow from "../csvWorkflow.js";
+import type * as emailLogs from "../emailLogs.js";
 import type * as emails from "../emails.js";
 import type * as fileUpload from "../fileUpload.js";
 import type * as http from "../http.js";
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   campaigns: typeof campaigns;
   csvWorkflow: typeof csvWorkflow;
+  emailLogs: typeof emailLogs;
   emails: typeof emails;
   fileUpload: typeof fileUpload;
   http: typeof http;

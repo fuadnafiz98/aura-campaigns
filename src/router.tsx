@@ -16,6 +16,8 @@ const LeadsPage = React.lazy(() => import("./pages/leads"));
 const EmailCampaignFlow = React.lazy(() => import("./pages/campaigns/show"));
 const WithSideBar = React.lazy(() => import("./components/with-sidebar"));
 const CampaignsPage = React.lazy(() => import("./pages/campaigns/list"));
+const AnalyticsPage = React.lazy(() => import("./pages/analytics"));
+const EmailLogsPage = React.lazy(() => import("./pages/email-logs"));
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -69,7 +71,22 @@ const router = createBrowserRouter(
                 <Skeleton className="h-full m-4" />
               </AuthLoading>
               <Authenticated>
-                <div>Dashboard</div>
+                <EmailLogsPage />
+              </Authenticated>
+            </>
+          </WithSideBar>
+        }
+      />
+      <Route
+        path="analytics"
+        element={
+          <WithSideBar label="Analaytics">
+            <>
+              <AuthLoading>
+                <Skeleton className="h-full m-4" />
+              </AuthLoading>
+              <Authenticated>
+                <AnalyticsPage />
               </Authenticated>
             </>
           </WithSideBar>

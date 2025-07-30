@@ -26,11 +26,6 @@ import { api } from "#/_generated/api";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { SendTestMail } from "./send-test-mail";
 
 type Email = Doc<"emails">;
@@ -52,7 +47,7 @@ export const EmailEditDialog = ({
 }: EmailEditDialogProps) => {
   const email = useQuery(api.emails.getEmail, { id });
   const updateEmail = useMutation(api.emails.updateEmail);
-  const { watch, register, control, handleSubmit, getValues, setValue } =
+  const { register, control, handleSubmit, getValues, setValue } =
     useForm<EmailForm>({
       defaultValues: {
         ordering: email?.ordering || 0,
@@ -223,7 +218,10 @@ export const EmailEditDialog = ({
               </div>
 
               <DialogFooter className="mt-4">
-                <SendTestMail />
+                <SendTestMail
+                  subject={getValues("subject")}
+                  body={editorContent}
+                />
                 <Button
                   type="submit"
                   className="bg-primary hover:bg-primary/90 cursor-pointer"
