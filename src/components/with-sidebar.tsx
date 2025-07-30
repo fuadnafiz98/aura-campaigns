@@ -6,7 +6,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { User as UserIcon } from "lucide-react";
 
 import { SidebarInset, SidebarTrigger } from "./ui/sidebar";
 import { Separator } from "./ui/separator";
@@ -18,6 +17,7 @@ import {
 } from "./ui/breadcrumb";
 import { AppSidebar } from "./app-sidebar";
 import { api } from "../../convex/_generated/api";
+import Avatar from "./avatar";
 
 function WithSideBar({
   children,
@@ -53,7 +53,7 @@ function WithSideBar({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="ml-auto flex items-center gap-2 hover:bg-neutral-800 p-2 rounded-lg cursor-pointer">
-                  <UserIcon className="h-5 w-5" />
+                  <Avatar char={user ? user.user?.charAt(0) : undefined} />
                   <span className="font-medium">
                     {user ? user.user : "Loading..."}
                   </span>

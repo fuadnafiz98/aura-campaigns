@@ -10,13 +10,14 @@ import { useAction } from "convex/react";
 import { api } from "#/_generated/api";
 import { toast } from "sonner";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { Id } from "#/_generated/dataModel";
 
 interface SendTestMailProps {
   subject: string;
-  body: string;
+  id: Id<"emails">;
 }
 
-export const SendTestMail = ({ subject, body }: SendTestMailProps) => {
+export const SendTestMail = ({ subject, id }: SendTestMailProps) => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,8 +40,7 @@ export const SendTestMail = ({ subject, body }: SendTestMailProps) => {
     try {
       await sendTestEmail({
         to: email.trim(),
-        subject: subject || "Test Email",
-        body: body || "<p>Test email body</p>",
+        id: id,
       });
 
       toast.success(`Test email sent successfully to ${email}`);
@@ -56,7 +56,7 @@ export const SendTestMail = ({ subject, body }: SendTestMailProps) => {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger>
+      <PopoverTrigger asChild>
         <Button
           type="button"
           variant={"outline"}

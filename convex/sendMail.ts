@@ -12,8 +12,7 @@ export const resend: Resend = new Resend(components.resend, {
 export const sendTestEmailWithContent = action({
   args: {
     to: v.string(),
-    subject: v.string(),
-    body: v.string(),
+    id: v.id("emails"),
   },
   handler: async (ctx, args): Promise<void> => {
     const user = await ctx.auth.getUserIdentity();
@@ -28,8 +27,7 @@ export const sendTestEmailWithContent = action({
       internal.sendMail._sendTestEmailWithContent,
       {
         to: args.to,
-        subject: args.subject,
-        body: args.body,
+        id: args.id,
         replyTo: user.email,
         userId: userId,
       },
@@ -41,21 +39,36 @@ export const sendTestEmailWithContent = action({
 export const _sendTestEmailWithContent = internalMutation({
   args: {
     to: v.string(),
-    subject: v.string(),
-    body: v.string(),
+    id: v.id("emails"),
     replyTo: v.optional(v.string()),
     userId: v.id("users"),
   },
   handler: async (ctx, args) => {
     console.log("SENDING TEST EMAIL TO:", args.to);
 
+    if (!args.to || !args.id) {
+      throw new Error("Missing required fields: to, or id");
+    }
+
+    // get the email content from the database
+    const email = await ctx.db.get(args.id);
+    if (!email) {
+      throw new Error(`Email with ID ${args.id} not found`);
+    }
+
     // Send email via Resend
     const emailId = await resend.sendEmail(ctx, {
       from: "Me <dev@fuadnafiz98.com>",
       to: args.to,
       replyTo: args.replyTo ? [args.replyTo] : [],
-      subject: args.subject,
-      html: args.body,
+      subject: email.subject,
+      html: email.body,
+      headers: [
+        {
+          name: "List-Unsubscribe",
+          value: "https://fuadnafiz98.com/unsubscribe",
+        },
+      ],
     });
 
     // Create email log entry
@@ -63,8 +76,8 @@ export const _sendTestEmailWithContent = internalMutation({
     await ctx.db.insert("emailLogs", {
       to: args.to,
       replyTo: args.replyTo,
-      subject: args.subject,
-      body: args.body,
+      subject: email.subject,
+      body: email.body,
       resendId: emailId,
       status: "queued",
       createdAt: now,

@@ -165,7 +165,7 @@ export const CampaignsPage = () => {
                             : campaign.status === "completed"
                               ? "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800"
                               : campaign.status === "draft"
-                                ? "bg-gray-200 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-800"
+                                ? "bg-foreground/10 text-foreground border-accent dark:bg-background dark:text-gray-300 dark:border-gray-800"
                                 : "bg-muted text-muted-foreground border-border")
                       }
                     >

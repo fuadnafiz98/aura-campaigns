@@ -67,19 +67,23 @@ export const EmailEditDialog = ({
 
   const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
   const [loading, setLoading] = useState(false);
-  const [previewHtml, setPreviewHtml] = useState("");
-  const [editorContent, setEditorContent] = useState(email?.body || "");
+  // const [previewHtml, setPreviewHtml] = useState(email?.body || "");
 
   const editorRef = useRef<EditorRef>(null);
 
-  const handleContentChange = (html: string) => {
+  const handleContentChange = async (html: string) => {
     setValue("body", html, {
       shouldDirty: true,
       shouldTouch: true,
       shouldValidate: true,
     });
-    setPreviewHtml(html);
-    setEditorContent(html);
+    // setPreviewHtml(html);
+
+    const currentFormData = getValues();
+    await saveEmail({
+      ...currentFormData,
+      body: html,
+    });
   };
 
   //TODO: verify why it's needed
@@ -91,14 +95,14 @@ export const EmailEditDialog = ({
     setActiveTab(value as "edit" | "preview");
   };
 
-  const onSubmit = async (data: EmailForm) => {
+  const saveEmail = async (data: EmailForm) => {
     setLoading(true);
     console.log("Submitting email data:", data);
     try {
       await updateEmail({
         id,
         subject: data.subject,
-        body: editorContent,
+        body: data.body,
         delay: data.delay,
         delayUnit: data.delayUnit,
         ordering: data.ordering,
@@ -109,6 +113,10 @@ export const EmailEditDialog = ({
       toast.error(`Error updating email: ${(error as Error).message}`);
       setLoading(false);
     }
+  };
+
+  const onSubmit = async (data: EmailForm) => {
+    await saveEmail(data);
   };
 
   if (!isOpen) return null;
@@ -210,7 +218,7 @@ export const EmailEditDialog = ({
 
                     <TabsContent value="preview" className="mt-4">
                       <div className="rounded-md border border-input bg-white mt-4">
-                        <EmailPreview html={previewHtml} />
+                        <EmailPreview html={email.body} />
                       </div>
                     </TabsContent>
                   </Tabs>
@@ -218,10 +226,7 @@ export const EmailEditDialog = ({
               </div>
 
               <DialogFooter className="mt-4">
-                <SendTestMail
-                  subject={getValues("subject")}
-                  body={editorContent}
-                />
+                <SendTestMail id={id} subject={getValues("subject")} />
                 <Button
                   type="submit"
                   className="bg-primary hover:bg-primary/90 cursor-pointer"
