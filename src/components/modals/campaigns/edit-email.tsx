@@ -65,11 +65,7 @@ export const EmailEditDialog = ({
       },
     });
 
-  const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
   const [loading, setLoading] = useState(false);
-  // const [previewHtml, setPreviewHtml] = useState(email?.body || "");
-
-  const editorRef = useRef<EditorRef>(null);
 
   const handleContentChange = async (html: string) => {
     setValue("body", html, {
@@ -77,22 +73,12 @@ export const EmailEditDialog = ({
       shouldTouch: true,
       shouldValidate: true,
     });
-    // setPreviewHtml(html);
 
     const currentFormData = getValues();
     await saveEmail({
       ...currentFormData,
       body: html,
     });
-  };
-
-  //TODO: verify why it's needed
-  const handleTabChange = async (value: string) => {
-    if (value === "preview" && editorRef.current) {
-      const emailHtml = await editorRef.current.exportToEmail();
-      setPreviewHtml(emailHtml.html);
-    }
-    setActiveTab(value as "edit" | "preview");
   };
 
   const saveEmail = async (data: EmailForm) => {
@@ -185,11 +171,7 @@ export const EmailEditDialog = ({
 
                 <div className="grid w-full gap-4">
                   <Label>Email Body</Label>
-                  <Tabs
-                    value={activeTab}
-                    onValueChange={handleTabChange}
-                    className="w-full"
-                  >
+                  <Tabs className="w-full">
                     <TabsList className="grid w-full grid-cols-2">
                       <TabsTrigger
                         value="edit"
