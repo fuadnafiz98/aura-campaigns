@@ -13,9 +13,7 @@ import { Skeleton } from "./components/ui/skeleton";
 const SignInPage = React.lazy(() => import("./pages/sign-in"));
 const SignOutPage = React.lazy(() => import("./pages/sign-out"));
 const LeadsPage = React.lazy(() => import("./pages/leads"));
-const EmailCampaignFlow = React.lazy(
-  () => import("./pages/campaigns/campaigns"),
-);
+const EmailCampaignFlow = React.lazy(() => import("./pages/campaigns/show"));
 const WithSideBar = React.lazy(() => import("./components/with-sidebar"));
 const CampaignsPage = React.lazy(() => import("./pages/campaigns/list"));
 

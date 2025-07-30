@@ -71,6 +71,7 @@ export default tseslint.config(
       "@typescript-eslint/no-unsafe-return": "off",
 
       "@typescript-eslint/no-floating-promises": "off",
+      "@typescript-eslint/no-misused-promises": "off",
       // END: Allow implicit `any`s
 
       // Allow async functions without await

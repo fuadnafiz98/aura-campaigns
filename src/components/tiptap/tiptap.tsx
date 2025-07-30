@@ -51,16 +51,24 @@ export const Editor = forwardRef<EditorRef, EditorProps>(
         HorizontalRule,
       ],
       content: initialContent || "",
-      onUpdate: ({ editor }) => {
-        // ADD THIS
-        if (onContentChange) {
-          onContentChange(editor.getHTML());
-        }
-      },
+      // onUpdate: ({ editor }) => {
+      // if (onContentChange) {
+      // onContentChange(editor.getHTML());
+      // }
+      // },
       editorProps: {
         attributes: {
           class:
             "prose dark:prose-invert prose-sm min-h-[250px] max-h-[350px] overflow-y-scroll focus:outline-none p-4 max-w-none",
+        },
+        handleDOMEvents: {
+          blur: (view) => {
+            console.log("Editor blurred");
+            if (onContentChange && editor) {
+              onContentChange(editor.getHTML());
+            }
+            return false;
+          },
         },
       },
     });
@@ -92,8 +100,7 @@ export const Editor = forwardRef<EditorRef, EditorProps>(
     });
 
     //TODO: Export HTML content
-    const html = editor && editor.getHTML();
-    console.log("Exporting email HTML:", html);
+    // const html = editor && editor.getHTML();
 
     return (
       <div className="border rounded-lg overflow-hidden">

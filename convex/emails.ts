@@ -16,6 +16,17 @@ export const emailsList = query({
   },
 });
 
+export const getEmail = query({
+  args: {
+    id: v.id("emails"),
+  },
+  handler: async (ctx, args) => {
+    const email = await ctx.db.get(args.id);
+    if (!email) throw new Error("Email not found");
+    return email;
+  },
+});
+
 export const createEmail = mutation({
   args: {
     campaignId: v.id("campaigns"),

@@ -6,12 +6,14 @@ import { useMutation } from "convex/react";
 import { api } from "#/_generated/api";
 import { toast } from "sonner";
 import { EmailEditDialog } from "../modals/campaigns/edit-email";
+import { Doc } from "#/_generated/dataModel";
 
-export const EmailCard = React.memo(({ email }: any) => {
+type Email = Doc<"emails">;
+
+export const EmailCard = React.memo(({ email }: { email: Email }) => {
   const dragControls = useDragControls();
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const updateEmail = useMutation(api.emails.updateEmail);
   const deleteEmail = useMutation(api.emails.deleteEmail);
   const [loading, setLoading] = React.useState(false);
 
@@ -37,7 +39,7 @@ export const EmailCard = React.memo(({ email }: any) => {
   return (
     <Reorder.Item
       value={email}
-      id={email.id}
+      id={email._id}
       dragControls={dragControls}
       dragListener={false}
       layout="position"
@@ -61,7 +63,7 @@ export const EmailCard = React.memo(({ email }: any) => {
         <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
           <div className="flex items-center gap-2 bg-muted px-5 py-2 rounded-full border border-border text-xs text-muted-foreground">
             <Clock className="w-3 h-3" />
-            <span>Wait {delayText}</span>
+            <span>{delayText}</span>
           </div>
         </div>
 
@@ -108,10 +110,9 @@ export const EmailCard = React.memo(({ email }: any) => {
       </motion.div>
 
       <EmailEditDialog
-        initialEmail={email}
+        id={email._id}
         isOpen={isOpen}
         onOpenChange={setIsOpen}
-        onSave={() => {}}
       />
     </Reorder.Item>
   );
