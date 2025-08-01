@@ -18,6 +18,8 @@ const WithSideBar = React.lazy(() => import("./components/with-sidebar"));
 const CampaignsPage = React.lazy(() => import("./pages/campaigns/list"));
 const AnalyticsPage = React.lazy(() => import("./pages/analytics"));
 const EmailLogsPage = React.lazy(() => import("./pages/email-logs"));
+const AudiencePage = React.lazy(() => import("./pages/audiences"));
+const AudienceDetailPage = React.lazy(() => import("./pages/audiences/detail"));
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -36,7 +38,7 @@ const router = createBrowserRouter(
             </AuthLoading>
             <Authenticated>
               <WithSideBar label="Dashboard">
-                <div>Dashboard</div>
+                <div className="m-8">Welcome User!</div>
               </WithSideBar>
             </Authenticated>
             <Unauthenticated>
@@ -137,6 +139,40 @@ const router = createBrowserRouter(
               <Authenticated>
                 <Suspense fallback={<Skeleton className="h-full m-4" />}>
                   <EmailCampaignFlow />
+                </Suspense>
+              </Authenticated>
+            </>
+          </WithSideBar>
+        }
+      />
+      <Route
+        path="audiences"
+        element={
+          <WithSideBar label="Audiences">
+            <>
+              <AuthLoading>
+                <Skeleton className="h-full m-4" />
+              </AuthLoading>
+              <Authenticated>
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  <AudiencePage />
+                </Suspense>
+              </Authenticated>
+            </>
+          </WithSideBar>
+        }
+      />
+      <Route
+        path="audiences/:audienceId"
+        element={
+          <WithSideBar label="Audience Details">
+            <>
+              <AuthLoading>
+                <Skeleton className="h-full m-4" />
+              </AuthLoading>
+              <Authenticated>
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  <AudienceDetailPage />
                 </Suspense>
               </Authenticated>
             </>

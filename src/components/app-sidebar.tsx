@@ -17,6 +17,7 @@ import { UsersIcon } from "./ui/users";
 import { PartyPopperIcon } from "./ui/party-popper";
 import Plane from "@/assets/plane.svg";
 import { ChartSplineIcon } from "./ui/chart-spline";
+import { RadioIcon } from "./ui/radio";
 
 interface IconHandle {
   startAnimation: () => void;
@@ -37,7 +38,8 @@ export const data = {
           url: "/analytics",
           icon: ChartSplineIcon,
         },
-        { title: "Leads", url: "/leads", icon: UsersIcon },
+        { title: "Audiences", url: "/audiences", icon: RadioIcon },
+        { title: "Leads Database", url: "/leads", icon: UsersIcon },
         { title: "Campaigns", url: "/campaigns", icon: PartyPopperIcon },
       ],
     },

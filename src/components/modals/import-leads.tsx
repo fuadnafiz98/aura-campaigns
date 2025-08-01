@@ -3,7 +3,7 @@ import type React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Upload } from "lucide-react";
 import axios from "axios";
-import { api } from "../../../convex/_generated/api";
+import { api } from "#/_generated/api";
 import { useAction, useMutation, useQuery } from "convex/react";
 
 import { Button } from "@/components/ui/button";
@@ -14,15 +14,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Id } from "#/_generated/dataModel";
 
 interface UploadLeadsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  audienceId?: Id<"audiences">;
+  audienceName?: string;
 }
 
 export const UploadLeadsModal = ({
   open,
   onOpenChange,
+  audienceId,
 }: UploadLeadsModalProps) => {
   // states
   const [file, setFile] = useState<File | null>(null);
@@ -108,9 +112,9 @@ export const UploadLeadsModal = ({
       setStorageId(storageId);
       setUploading(false);
       setUploadProgress(0);
-      setFile(null);
       // onOpenChange(false);
-      await CSVImportWF({ storageId: storageId });
+      await CSVImportWF({ storageId: storageId, audienceId: audienceId });
+      setFile(null);
     } catch (error) {
       console.error("Upload failed:", error);
       setUploading(false);
@@ -125,12 +129,14 @@ export const UploadLeadsModal = ({
       setDragOver(false);
       setUploading(false);
       setUploadProgress(0);
+      setStorageId(null);
     }
     onOpenChange(newOpen);
   };
 
   useEffect(() => {
     if (CSVImportWFTask?.status === "DONE") {
+      setStorageId(null);
       onOpenChange(false);
     }
   }, [onOpenChange, CSVImportWFTask]);
@@ -274,8 +280,10 @@ export const UploadLeadsModal = ({
               </div>
             </>
           ) : storageId ? (
-            <div className="text-xs text-muted-foreground">
-              Starting CSV Import...
+            <div>
+              <div className="w-full h-10 text-xs bg-secondary rounded-md overflow-hidden flex flex-col justify-center px-4">
+                Starting CSV Import...
+              </div>
             </div>
           ) : (
             ""

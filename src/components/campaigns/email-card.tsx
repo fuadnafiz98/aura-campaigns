@@ -7,6 +7,7 @@ import { api } from "#/_generated/api";
 import { toast } from "sonner";
 import { EmailEditDialog } from "../modals/campaigns/edit-email";
 import { Doc } from "#/_generated/dataModel";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 type Email = Doc<"emails">;
 
@@ -81,29 +82,32 @@ export const EmailCard = React.memo(({ email }: { email: Email }) => {
               </div>
               <h3 className="font-medium text-foreground">{email.subject}</h3>
             </div>
-            <div className="flex items-center gap-1">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsOpen(true)}
-                disabled={loading}
-                className="p-2 hover:bg-zinc-800 rounded-lg cursor-pointer"
-              >
-                <Edit className="w-4 h-4  text-muted-foreground hover:text-foreground" />
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                disabled={loading}
-                onClick={handleDelete}
-                className="p-2 hover:bg-red-950/50 rounded-lg group cursor-pointer"
-              >
-                {loading ? (
-                  <div className="w-4 h-4 border-2 border-destructive text-destructive border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-destructive/95" />
-                )}
-              </motion.button>
+            <div className="flex items-center gap-2">
+              <StatusBadge status={email.status || "draft"} type="email" />
+              <div className="flex items-center gap-1">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setIsOpen(true)}
+                  disabled={loading}
+                  className="p-2 hover:bg-zinc-800 rounded-lg cursor-pointer"
+                >
+                  <Edit className="w-4 h-4  text-muted-foreground hover:text-foreground" />
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  disabled={loading}
+                  onClick={handleDelete}
+                  className="p-2 hover:bg-red-950/50 rounded-lg group cursor-pointer"
+                >
+                  {loading ? (
+                    <div className="w-4 h-4 border-2 border-destructive text-destructive border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-destructive/95" />
+                  )}
+                </motion.button>
+              </div>
             </div>
           </div>
         </div>
