@@ -9,7 +9,11 @@ import React, { Suspense } from "react";
 
 import App from "./App";
 import { Skeleton } from "./components/ui/skeleton";
+import LoadingScreen from "./components/loading-screen";
+import LandingPage from "./pages/landing";
+import ErrorBoundary from "./components/error-boundary";
 
+const NotFoundPage = React.lazy(() => import("./pages/not-found"));
 const SignInPage = React.lazy(() => import("./pages/sign-in"));
 const SignOutPage = React.lazy(() => import("./pages/sign-out"));
 const LeadsPage = React.lazy(() => import("./pages/leads"));
@@ -23,34 +27,204 @@ const AudienceDetailPage = React.lazy(() => import("./pages/audiences/detail"));
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path="/" element={<App />}>
+    <>
       <Route
-        index
-        element={
-          <>
-            <AuthLoading>
-              <div className="flex flex-col items-center justify-center h-screen w-full">
-                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-                <span className="text-muted-foreground text-base font-medium">
-                  Loading ...
-                </span>
-              </div>
-            </AuthLoading>
-            <Authenticated>
-              <WithSideBar label="Dashboard">
-                <div className="m-8">Welcome User!</div>
-              </WithSideBar>
-            </Authenticated>
-            <Unauthenticated>
-              <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                <SignInPage />
-              </Suspense>
-            </Unauthenticated>
-          </>
-        }
+        path="/"
+        element={<LandingPage />}
+        errorElement={<ErrorBoundary />}
       />
+
+      <Route path="/app" element={<App />} errorElement={<ErrorBoundary />}>
+        <Route
+          index
+          element={
+            <>
+              <AuthLoading>
+                <LoadingScreen label={"Dashboard"} />
+              </AuthLoading>
+              <Authenticated>
+                <WithSideBar label="Dashboard">
+                  <EmailLogsPage />
+                </WithSideBar>
+              </Authenticated>
+              <Unauthenticated>
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  <SignInPage />
+                </Suspense>
+              </Unauthenticated>
+            </>
+          }
+        />
+        <Route
+          path="dashboard"
+          element={
+            <>
+              <AuthLoading>
+                <LoadingScreen label={"Dashboard"} />
+              </AuthLoading>
+              <Authenticated>
+                <WithSideBar label="Dashboard">
+                  <EmailLogsPage />
+                </WithSideBar>
+              </Authenticated>
+              <Unauthenticated>
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  <SignInPage />
+                </Suspense>
+              </Unauthenticated>
+            </>
+          }
+        />
+        <Route
+          path="login"
+          element={
+            <>
+              <AuthLoading>
+                <Skeleton className="h-full m-4" />
+              </AuthLoading>
+              <Unauthenticated>
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  <SignInPage />
+                </Suspense>
+              </Unauthenticated>
+            </>
+          }
+        />
+        <Route
+          path="analytics"
+          element={
+            <>
+              <AuthLoading>
+                <LoadingScreen label={"Analytics Page"} />
+              </AuthLoading>
+              <Authenticated>
+                <WithSideBar label="Analytics">
+                  <AnalyticsPage />
+                </WithSideBar>
+              </Authenticated>
+              <Unauthenticated>
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  <SignInPage />
+                </Suspense>
+              </Unauthenticated>
+            </>
+          }
+        />
+        <Route
+          path="leads"
+          element={
+            <>
+              <AuthLoading>
+                <LoadingScreen label={"Leads"} />
+              </AuthLoading>
+              <Authenticated>
+                <WithSideBar label="Leads">
+                  <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                    <LeadsPage />
+                  </Suspense>
+                </WithSideBar>
+              </Authenticated>
+              <Unauthenticated>
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  <SignInPage />
+                </Suspense>
+              </Unauthenticated>
+            </>
+          }
+        />
+        <Route
+          path="campaigns"
+          element={
+            <>
+              <AuthLoading>
+                <LoadingScreen label={"Campaigns"} />
+              </AuthLoading>
+              <Authenticated>
+                <WithSideBar label="Campaigns">
+                  <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                    <CampaignsPage />
+                  </Suspense>
+                </WithSideBar>
+              </Authenticated>
+              <Unauthenticated>
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  <SignInPage />
+                </Suspense>
+              </Unauthenticated>
+            </>
+          }
+        />
+        <Route
+          path="campaigns/:campaignId"
+          element={
+            <>
+              <AuthLoading>
+                <LoadingScreen label={"Campaign Details"} />
+              </AuthLoading>
+              <Authenticated>
+                <WithSideBar label="Campaign Details">
+                  <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                    <EmailCampaignFlow />
+                  </Suspense>
+                </WithSideBar>
+              </Authenticated>
+              <Unauthenticated>
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  <SignInPage />
+                </Suspense>
+              </Unauthenticated>
+            </>
+          }
+        />
+        <Route
+          path="audiences"
+          element={
+            <>
+              <AuthLoading>
+                <LoadingScreen label={"Audiences"} />
+              </AuthLoading>
+              <Authenticated>
+                <WithSideBar label="Audiences">
+                  <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                    <AudiencePage />
+                  </Suspense>
+                </WithSideBar>
+              </Authenticated>
+              <Unauthenticated>
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  <SignInPage />
+                </Suspense>
+              </Unauthenticated>
+            </>
+          }
+        />
+        <Route
+          path="audiences/:audienceId"
+          element={
+            <>
+              <AuthLoading>
+                <LoadingScreen label={"Audience Details"} />
+              </AuthLoading>
+              <Authenticated>
+                <WithSideBar label="Audience Details">
+                  <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                    <AudienceDetailPage />
+                  </Suspense>
+                </WithSideBar>
+              </Authenticated>
+              <Unauthenticated>
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  <SignInPage />
+                </Suspense>
+              </Unauthenticated>
+            </>
+          }
+        />
+      </Route>
+
+      {/* Standalone routes */}
       <Route
-        path="login"
+        path="/login"
         element={
           <>
             <AuthLoading>
@@ -63,131 +237,28 @@ const router = createBrowserRouter(
             </Unauthenticated>
           </>
         }
+        errorElement={<ErrorBoundary />}
       />
+
       <Route
-        path="dashboard"
-        element={
-          <WithSideBar label="Dashboard">
-            <>
-              <AuthLoading>
-                <Skeleton className="h-full m-4" />
-              </AuthLoading>
-              <Authenticated>
-                <EmailLogsPage />
-              </Authenticated>
-            </>
-          </WithSideBar>
-        }
-      />
-      <Route
-        path="analytics"
-        element={
-          <WithSideBar label="Analaytics">
-            <>
-              <AuthLoading>
-                <Skeleton className="h-full m-4" />
-              </AuthLoading>
-              <Authenticated>
-                <AnalyticsPage />
-              </Authenticated>
-            </>
-          </WithSideBar>
-        }
-      />
-      <Route
-        path="leads"
-        element={
-          <WithSideBar label="Leads">
-            <>
-              <AuthLoading>
-                <Skeleton className="h-full m-4" />
-              </AuthLoading>
-              <Authenticated>
-                <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                  <LeadsPage />
-                </Suspense>
-              </Authenticated>
-            </>
-          </WithSideBar>
-        }
-      />
-      <Route
-        path="campaigns"
-        element={
-          <WithSideBar label="Campaigns">
-            <>
-              <AuthLoading>
-                <Skeleton className="h-full m-4" />
-              </AuthLoading>
-              <Authenticated>
-                <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                  <CampaignsPage />
-                </Suspense>
-              </Authenticated>
-            </>
-          </WithSideBar>
-        }
-      />
-      <Route
-        path="campaigns/:campaignId"
-        element={
-          <WithSideBar label="Campaign Details">
-            <>
-              <AuthLoading>
-                <Skeleton className="h-full m-4" />
-              </AuthLoading>
-              <Authenticated>
-                <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                  <EmailCampaignFlow />
-                </Suspense>
-              </Authenticated>
-            </>
-          </WithSideBar>
-        }
-      />
-      <Route
-        path="audiences"
-        element={
-          <WithSideBar label="Audiences">
-            <>
-              <AuthLoading>
-                <Skeleton className="h-full m-4" />
-              </AuthLoading>
-              <Authenticated>
-                <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                  <AudiencePage />
-                </Suspense>
-              </Authenticated>
-            </>
-          </WithSideBar>
-        }
-      />
-      <Route
-        path="audiences/:audienceId"
-        element={
-          <WithSideBar label="Audience Details">
-            <>
-              <AuthLoading>
-                <Skeleton className="h-full m-4" />
-              </AuthLoading>
-              <Authenticated>
-                <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                  <AudienceDetailPage />
-                </Suspense>
-              </Authenticated>
-            </>
-          </WithSideBar>
-        }
-      />
-      <Route
-        path="signout"
+        path="/signout"
         element={
           <Suspense fallback={<Skeleton className="h-full m-4" />}>
             <SignOutPage />
           </Suspense>
         }
+        errorElement={<ErrorBoundary />}
       />
-    </Route>,
+
+      <Route
+        path="*"
+        element={
+          <Suspense fallback={<LoadingScreen label={"Loading"} />}>
+            <NotFoundPage />
+          </Suspense>
+        }
+      />
+    </>,
   ),
 );
 

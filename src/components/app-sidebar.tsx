@@ -30,17 +30,17 @@ export const data = {
       items: [
         {
           title: "Dashboard",
-          url: "/dashboard",
+          url: "/app/dashboard",
           icon: HomeIcon,
         },
         {
           title: "Analytics",
-          url: "/analytics",
+          url: "/app/analytics",
           icon: ChartSplineIcon,
         },
-        { title: "Audiences", url: "/audiences", icon: RadioIcon },
-        { title: "Leads Database", url: "/leads", icon: UsersIcon },
-        { title: "Campaigns", url: "/campaigns", icon: PartyPopperIcon },
+        { title: "Audiences", url: "/app/audiences", icon: RadioIcon },
+        { title: "Leads Database", url: "/app/leads", icon: UsersIcon },
+        { title: "Campaigns", url: "/app/campaigns", icon: PartyPopperIcon },
       ],
     },
   ],

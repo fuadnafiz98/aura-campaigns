@@ -18,14 +18,14 @@ export function SignInPage() {
     formData.set("flow", flow);
     try {
       await signIn("password", formData);
-      return navigate("/");
+      return navigate("/app");
     } catch (error) {
       setError((error as Error).message);
     }
   };
 
   return (
-    <div className="grid place-content-center w-full">
+    <div className="grid place-content-center w-full h-screen">
       <form
         className="flex flex-col gap-2 w-96"
         onSubmit={(e) => {

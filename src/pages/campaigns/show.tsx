@@ -250,7 +250,7 @@ export default function EmailCampaignFlow() {
     <>
       <div className="mx-16 mt-4">
         <Link
-          to="/campaigns"
+          to="/app/campaigns"
           className="flex items-center text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
