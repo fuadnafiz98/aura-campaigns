@@ -1,1 +1,0 @@
-import{u as o,a as s,r as i,j as r}from"./index-BhShMgCK.js";function c(){const{signOut:t}=o(),a=s();return i.useEffect(()=>{(async()=>{try{await t(),await a("/login")}catch(n){console.error(n)}})()},[t,a]),r.jsx("div",{children:"Signing out..."})}export{c as SignOutPage,c as default};
