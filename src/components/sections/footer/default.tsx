@@ -9,7 +9,7 @@ import {
   FooterColumn,
   FooterContent,
 } from "@/components/ui/footer";
-import { ModeToggle } from "@/components/ui/mode-toggle";
+// import { ModeToggle } from "@/components/ui/mode-toggle";
 
 interface FooterLink {
   text: string;
@@ -33,9 +33,9 @@ interface FooterProps {
 
 export default function FooterSection({
   logo = <LaunchUI />,
-  name = "Launch UI",
-  copyright = "© 2025 Muhtasim Fuad. All rights reserved",
-  showModeToggle = true,
+  name = "Aura Campaigns",
+  copyright = "© 2025 Aura Campaigns. All rights reserved. | GDPR & CAN-SPAM Compliant | Built for your growth.",
+  // showModeToggle = true,
   className,
 }: FooterProps) {
   return (
@@ -66,7 +66,14 @@ export default function FooterSection({
           </FooterContent>
           <FooterBottom>
             <div>{copyright}</div>
-            <div className="flex items-center gap-4"></div>
+            <div className="flex items-center gap-4">
+              <span>
+                Ready to grow?{" "}
+                <a href="/sign-in" className="underline">
+                  Start your free trial
+                </a>
+              </span>
+            </div>
           </FooterBottom>
         </Footer>
       </div>

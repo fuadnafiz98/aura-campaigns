@@ -1,4 +1,4 @@
-import { Menu, Rocket } from "lucide-react";
+import { Menu } from "lucide-react";
 import { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -56,23 +56,23 @@ type NavbarActionProps = {
 };
 
 export default function Navbar({
-  logo = "🔥",
+  logo = "📧",
   name = "Aura Campaigns",
-  homeUrl = "https://www.launchuicomponents.com/",
+  homeUrl = "/",
   mobileLinks = [
-    { text: "Getting Started", href: "https://www.launchuicomponents.com/" },
-    { text: "Components", href: "https://www.launchuicomponents.com/" },
-    { text: "Documentation", href: "https://www.launchuicomponents.com/" },
+    { text: "Features", href: "#features" },
+    { text: "Pricing", href: "#pricing" },
+    { text: "FAQ", href: "#faq" },
   ],
   actions = [
     {
       text: "Sign in",
-      href: "https://www.launchuicomponents.com/",
+      href: "/sign-in",
       isButton: false,
     },
     {
-      text: "Get Started",
-      href: "https://www.launchuicomponents.com/",
+      text: "Start Free Trial",
+      href: "/sign-in",
       isButton: true,
       variant: "default",
     },

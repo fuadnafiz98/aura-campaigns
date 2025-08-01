@@ -21,12 +21,17 @@ interface CTAProps {
 }
 
 export default function CTA({
-  title = "Start building",
+  title = "Ready to launch smarter campaigns?",
   buttons = [
     {
-      href: "https://www.launchuicomponents.com/",
-      text: "Get Started",
+      href: "/sign-in",
+      text: "Start Free Trial",
       variant: "default",
+    },
+    {
+      href: "#features",
+      text: "See Features",
+      variant: "outline",
     },
   ],
   className,

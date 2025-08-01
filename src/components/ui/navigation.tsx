@@ -45,17 +45,19 @@ interface NavigationProps {
 export default function Navigation({
   menuItems = [
     {
-      title: "Getting started",
-      content: "default",
-    },
-    {
-      title: "Components",
-      content: "components",
-    },
-    {
-      title: "Documentation",
+      title: "Features",
       isLink: true,
-      href: "https://www.launchuicomponents.com/",
+      href: "#features",
+    },
+    {
+      title: "Pricing",
+      isLink: true,
+      href: "#pricing",
+    },
+    {
+      title: "FAQ",
+      isLink: true,
+      href: "#faq",
     },
   ],
   components = [

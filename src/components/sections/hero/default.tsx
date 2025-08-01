@@ -29,13 +29,13 @@ interface HeroProps {
 }
 
 export default function Hero({
-  title = "Give your big idea the design it deserves",
-  description = "Professionally designed blocks and templates built with React, Shadcn/ui and Tailwind that will help your product stand out.",
+  title = "Transform Your Email Marketing with Intelligent Campaign Automation",
+  description = "Effortlessly build, automate, and track high-converting email campaigns—all in one place. Grow faster with Aura Campaigns.",
   mockup = (
     <Screenshot
       srcLight="/ss.webp"
       srcDark="/ss.webp"
-      alt="Launch UI app screenshot"
+      alt="Aura Campaigns app screenshot"
       width={1248}
       height={765}
       className="w-full"
@@ -44,26 +44,23 @@ export default function Hero({
   badge = (
     <Badge variant="outline" className="animate-appear">
       <span className="text-muted-foreground">
-        New version of Launch UI is out!
+        New: Aura Campaigns is now live!
       </span>
-      <a
-        href="https://www.launchuicomponents.com/"
-        className="flex items-center gap-1"
-      >
-        Get started
+      <a href="/sign-in" className="flex items-center gap-1">
+        Try it free
         <ArrowRightIcon className="size-3" />
       </a>
     </Badge>
   ),
   buttons = [
     {
-      href: "https://www.launchuicomponents.com/",
-      text: "Get Started",
+      href: "/sign-in",
+      text: "Start Free Trial",
       variant: "default",
     },
     {
-      href: "https://www.launchuicomponents.com/",
-      text: "Github",
+      href: "https://github.com/fuadnafiz98/aura-campaigns",
+      text: "View on GitHub",
       variant: "glow",
       icon: <Github className="mr-2 size-4" />,
     },
@@ -80,10 +77,10 @@ export default function Hero({
       <div className="max-w-container mx-auto flex flex-col gap-12 pt-16 sm:gap-24">
         <div className="flex flex-col items-center gap-6 text-center sm:gap-12">
           {badge !== false && badge}
-          <h1 className="animate-appear from-foreground to-foreground dark:to-muted-foreground relative z-10 inline-block bg-linear-to-r bg-clip-text text-4xl leading-tight font-semibold text-balance text-transparent drop-shadow-2xl sm:text-6xl sm:leading-tight md:text-8xl md:leading-tight">
+          <h1 className="animate-appear from-foreground to-foreground dark:to-muted-foreground relative z-10 inline-block bg-linear-to-r bg-clip-text text-2xl leading-tight font-semibold text-balance text-transparent drop-shadow-2xl sm:text-4xl sm:leading-tight md:text-5xl md:leading-tight">
             {title}
           </h1>
-          <p className="text-md animate-appear text-muted-foreground relative z-10 max-w-[740px] font-medium text-balance opacity-0 delay-100 sm:text-xl">
+          <p className="text-sm animate-appear text-muted-foreground relative z-10 max-w-[740px] font-medium text-balance opacity-0 delay-100 sm:text-base">
             {description}
           </p>
           {buttons !== false && buttons.length > 0 && (
