@@ -198,6 +198,131 @@ export const updateCampaign = mutation({
   },
 });
 
+// Query to get a single campaign
+export const getCampaign = query({
+  args: {
+    id: v.id("campaigns"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) {
+      throw new Error("User must be authenticated to view a campaign");
+    }
+
+    const campaign = await ctx.db.get(args.id);
+
+    if (!campaign) {
+      throw new Error("Campaign not found");
+    }
+
+    if (campaign.createdBy !== userId) {
+      throw new Error("You don't have permission to view this campaign");
+    }
+
+    return campaign;
+  },
+});
+
+// Mutation to publish a campaign
+export const updateCampaignStatus = mutation({
+  args: {
+    id: v.id("campaigns"),
+    action: v.string(),
+    audienceIds: v.optional(v.array(v.id("audiences"))),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("User must be authenticated to update campaign");
+    }
+
+    const campaign = await ctx.db.get(args.id);
+    if (!campaign) {
+      throw new Error("Campaign not found");
+    }
+
+    if (campaign.createdBy !== userId) {
+      throw new Error("You don't have permission to update this campaign");
+    }
+
+    switch (args.action) {
+      case "publish":
+        // Validate that audiences are selected
+        if (!args.audienceIds || args.audienceIds.length === 0) {
+          throw new Error(
+            "Please select at least one audience before publishing",
+          );
+        }
+        await ctx.db.patch(args.id, {
+          status: "active",
+          audienceIds: args.audienceIds,
+          updatedAt: Date.now(),
+        });
+        break;
+
+      case "pause":
+        if (campaign.status !== "active") {
+          throw new Error("Can only pause active campaigns");
+        }
+        await ctx.db.patch(args.id, {
+          status: "paused",
+          updatedAt: Date.now(),
+        });
+        break;
+
+      case "resume":
+        if (campaign.status !== "paused") {
+          throw new Error("Can only resume paused campaigns");
+        }
+        await ctx.db.patch(args.id, {
+          status: "active",
+          updatedAt: Date.now(),
+        });
+        break;
+
+      default:
+        throw new Error(`Invalid action: ${args.action}`);
+    }
+
+    return args.id;
+  },
+});
+
+export const updateCampaignAudiences = mutation({
+  args: {
+    id: v.id("campaigns"),
+    audienceIds: v.array(v.id("audiences")),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("User must be authenticated to update campaign");
+    }
+
+    const campaign = await ctx.db.get(args.id);
+    if (!campaign) {
+      throw new Error("Campaign not found");
+    }
+
+    if (campaign.createdBy !== userId) {
+      throw new Error("You don't have permission to update this campaign");
+    }
+
+    // Only allow updating audiences if campaign is still in draft
+    if (campaign.status !== "draft") {
+      throw new Error("Can only update audiences for draft campaigns");
+    }
+
+    await ctx.db.patch(args.id, {
+      audienceIds: args.audienceIds,
+      updatedAt: Date.now(),
+    });
+
+    return args.id;
+  },
+});
+
 // Optional: Add a mutation to delete campaign
 export const deleteCampaign = mutation({
   args: {

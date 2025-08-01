@@ -16,6 +16,7 @@ export const parseCSVData = internalAction({
   args: {
     storageId: v.id("_storage"),
     userId: v.id("users"),
+    audienceId: v.optional(v.id("audiences")),
   },
   handler: async (ctx, args) => {
     // Get the file from Convex storage
@@ -53,11 +54,29 @@ export const parseCSVData = internalAction({
 
     // Import data to database in batches
     const BATCH_SIZE = 100;
+    const importedLeadIds = [];
+
     for (let i = 0; i < validRecords.length; i += BATCH_SIZE) {
       const batch = validRecords.slice(i, i + BATCH_SIZE);
 
-      await ctx.runMutation(internal.csvWorkflow.insertCSVBatch, {
-        records: batch,
+      const batchResult = await ctx.runMutation(
+        internal.csvWorkflow.insertCSVBatch,
+        {
+          records: batch,
+          userId: args.userId,
+        },
+      );
+
+      if (args.audienceId && batchResult) {
+        importedLeadIds.push(...batchResult);
+      }
+    }
+
+    // If audienceId is provided, add all imported leads to the audience
+    if (args.audienceId && importedLeadIds.length > 0) {
+      await ctx.runMutation(internal.audiences.addLeadsToAudience, {
+        audienceId: args.audienceId,
+        leadIds: importedLeadIds,
         userId: args.userId,
       });
     }

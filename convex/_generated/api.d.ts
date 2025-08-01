@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as audiences from "../audiences.js";
 import type * as auth from "../auth.js";
 import type * as campaigns from "../campaigns.js";
 import type * as csvWorkflow from "../csvWorkflow.js";
@@ -37,6 +38,7 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  audiences: typeof audiences;
   auth: typeof auth;
   campaigns: typeof campaigns;
   csvWorkflow: typeof csvWorkflow;

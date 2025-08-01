@@ -44,6 +44,7 @@ export const createEmail = mutation({
       body: args.body,
       delay: args.delay,
       delayUnit: args.delayUnit,
+      status: "draft", // Default status for new emails
       createdAt: Date.now(),
       createdBy: userId,
       campaignId: args.campaignId,

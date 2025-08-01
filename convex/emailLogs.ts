@@ -95,11 +95,15 @@ export const listEmailLogs = query({
       .withIndex("byUser", (q) => q.eq("sentBy", userId))
       .order("desc");
 
+    let results;
     if (args.limit) {
-      return await query.take(args.limit);
+      results = await query.take(args.limit);
+    } else {
+      results = await query.collect();
     }
 
-    return await query.collect();
+    // Sort by updatedAt in descending order (most recently updated first)
+    return results.sort((a, b) => b.updatedAt - a.updatedAt);
   },
 });
 
@@ -139,11 +143,15 @@ export const getEmailLogsByStatus = query({
       .filter((q) => q.eq(q.field("sentBy"), userId))
       .order("desc");
 
+    let results;
     if (args.limit) {
-      return await query.take(args.limit);
+      results = await query.take(args.limit);
+    } else {
+      results = await query.collect();
     }
 
-    return await query.collect();
+    // Sort by updatedAt in descending order (most recently updated first)
+    return results.sort((a, b) => b.updatedAt - a.updatedAt);
   },
 });
 
@@ -187,9 +195,11 @@ export const getEmailLogsStats = query({
           stats.failed++;
           break;
         case "opened":
+          stats.delivered++;
           stats.opened++;
           break;
         case "clicked":
+          stats.delivered++;
           stats.clicked++;
           break;
         case "complained":

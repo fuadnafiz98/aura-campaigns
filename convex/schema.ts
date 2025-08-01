@@ -7,10 +7,6 @@ import { authTables } from "@convex-dev/auth/server";
 // The schema provides more precise TypeScript types.
 export default defineSchema({
   ...authTables,
-  numbers: defineTable({
-    value: v.number(),
-  }),
-
   files: defineTable({
     body: v.string(),
     author: v.string(),
@@ -34,6 +30,7 @@ export default defineSchema({
   campaigns: defineTable({
     name: v.string(),
     targetAudience: v.string(),
+    audienceIds: v.optional(v.array(v.id("audiences"))),
     status: v.string(),
     createdAt: v.number(),
     createdBy: v.id("users"),
@@ -47,6 +44,7 @@ export default defineSchema({
     body: v.string(),
     delay: v.number(),
     delayUnit: v.string(),
+    status: v.optional(v.string()),
     createdAt: v.number(),
     createdBy: v.id("users"),
     updatedAt: v.optional(v.number()),
@@ -73,4 +71,22 @@ export default defineSchema({
     .index("byStatus", ["status"])
     .index("byUser", ["sentBy"])
     .index("byCreatedAt", ["createdAt"]),
+
+  audiences: defineTable({
+    name: v.string(),
+    description: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    createdBy: v.id("users"),
+  }).index("byUser", ["createdBy"]),
+
+  audienceLeads: defineTable({
+    audienceId: v.id("audiences"),
+    leadId: v.id("leads"),
+    addedAt: v.number(),
+    addedBy: v.id("users"),
+  })
+    .index("byAudience", ["audienceId"])
+    .index("byLead", ["leadId"])
+    .index("byAudienceLead", ["audienceId", "leadId"]),
 });

@@ -10,6 +10,7 @@ export const CSVImportWF = workflow.define({
   args: {
     storageId: v.id("_storage"),
     userId: v.id("users"),
+    audienceId: v.optional(v.id("audiences")),
   },
   handler: async (step, args): Promise<Id<"CSVWFTasks">> => {
     const WFTaskId = await step.runMutation(
@@ -27,6 +28,7 @@ export const CSVImportWF = workflow.define({
     await step.runAction(internal.praseCSV.parseCSVData, {
       storageId: args.storageId,
       userId: args.userId,
+      audienceId: args.audienceId,
     });
 
     await step.runMutation(internal.csvWorkflow.updateCSVImportWFTask, {
@@ -84,9 +86,10 @@ export const insertCSVBatch = internalMutation({
   },
   handler: async (ctx, args) => {
     console.log("pushing to db");
+    const leadIds = [];
 
     for (const record of args.records) {
-      await ctx.db.insert("leads", {
+      const leadId = await ctx.db.insert("leads", {
         name: record.name,
         email: record.email,
         company: record.company,
@@ -94,13 +97,17 @@ export const insertCSVBatch = internalMutation({
         imported_by: args.userId,
         imported_at: Date.now(),
       });
+      leadIds.push(leadId);
     }
+
+    return leadIds;
   },
 });
 
 export const KSCSVImportWf = action({
   args: {
     storageId: v.id("_storage"),
+    audienceId: v.optional(v.id("audiences")),
   },
   handler: async (ctx, args): Promise<WorkflowId> => {
     const userId = await getAuthUserId(ctx);
@@ -111,6 +118,7 @@ export const KSCSVImportWf = action({
       {
         storageId: args.storageId,
         userId: userId!,
+        audienceId: args.audienceId,
       },
     );
     return workflowId;
