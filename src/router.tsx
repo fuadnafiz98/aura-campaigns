@@ -7,12 +7,12 @@ import {
 } from "react-router-dom";
 import React, { Suspense } from "react";
 
-import App from "./App";
 import { Skeleton } from "./components/ui/skeleton";
 import LoadingScreen from "./components/loading-screen";
 import LandingPage from "./pages/landing";
 import ErrorBoundary from "./components/error-boundary";
 
+const App = React.lazy(() => import("./App"));
 const NotFoundPage = React.lazy(() => import("./pages/not-found"));
 const SignInPage = React.lazy(() => import("./pages/sign-in"));
 const SignOutPage = React.lazy(() => import("./pages/sign-out"));
