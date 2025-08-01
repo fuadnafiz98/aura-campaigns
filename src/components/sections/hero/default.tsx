@@ -30,7 +30,7 @@ interface HeroProps {
 
 export default function Hero({
   title = "Transform Your Email Marketing with Intelligent Campaign Automation",
-  description = "Effortlessly build, automate, and track high-converting email campaigns—all in one place. Grow faster with Aura Campaigns.",
+  description = "Effortlessly build, automate, and track high-converting email campaigns—all in one place. Grow faster with Aura Campaigns!",
   mockup = (
     <Screenshot
       srcLight="/ss.webp"
