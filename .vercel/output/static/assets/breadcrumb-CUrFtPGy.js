@@ -1,0 +1,6 @@
+import{h as o,j as e,K as t,aj as c}from"./index-BhShMgCK.js";/**
+ * @license lucide-react v0.525.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const i=[["path",{d:"m9 18 6-6-6-6",key:"mthhwq"}]],u=o("chevron-right",i);function m({...a}){return e.jsx("nav",{"aria-label":"breadcrumb","data-slot":"breadcrumb",...a})}function l({className:a,...r}){return e.jsx("ol",{"data-slot":"breadcrumb-list",className:t("text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5",a),...r})}function b({className:a,...r}){return e.jsx("li",{"data-slot":"breadcrumb-item",className:t("inline-flex items-center gap-1.5",a),...r})}function x({asChild:a,className:r,...s}){const n=a?c:"a";return e.jsx(n,{"data-slot":"breadcrumb-link",className:t("hover:text-foreground transition-colors",r),...s})}function p({className:a,...r}){return e.jsx("span",{"data-slot":"breadcrumb-page",role:"link","aria-disabled":"true","aria-current":"page",className:t("text-foreground font-normal",a),...r})}function f({children:a,className:r,...s}){return e.jsx("li",{"data-slot":"breadcrumb-separator",role:"presentation","aria-hidden":"true",className:t("[&>svg]:size-3.5",r),...s,children:a??e.jsx(u,{})})}export{m as B,l as a,b,p as c,x as d,f as e};

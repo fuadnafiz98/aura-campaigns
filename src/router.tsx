@@ -9,8 +9,9 @@ import React, { Suspense } from "react";
 
 import { Skeleton } from "./components/ui/skeleton";
 import LoadingScreen from "./components/loading-screen";
-import LandingPage from "./pages/landing";
+// import LandingPage from "./pages/landing";
 import ErrorBoundary from "./components/error-boundary";
+import LandingPage from "./pages/landing";
 
 const App = React.lazy(() => import("./App"));
 const NotFoundPage = React.lazy(() => import("./pages/not-found"));
