@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
 
 // Query to get a paginated, filtered, and sorted list of campaigns
 export const getCampaigns = query({
@@ -259,6 +260,16 @@ export const updateCampaignStatus = mutation({
           audienceIds: args.audienceIds,
           updatedAt: Date.now(),
         });
+
+        // Schedule all emails for the campaign
+        await ctx.scheduler.runAfter(
+          0,
+          internal.campaignScheduler.scheduleCampaignEmails,
+          {
+            campaignId: args.id,
+            userId: userId,
+          },
+        );
         break;
 
       case "pause":
@@ -269,6 +280,15 @@ export const updateCampaignStatus = mutation({
           status: "paused",
           updatedAt: Date.now(),
         });
+
+        // Cancel all scheduled emails
+        await ctx.scheduler.runAfter(
+          0,
+          internal.campaignScheduler.cancelCampaignEmails,
+          {
+            campaignId: args.id,
+          },
+        );
         break;
 
       case "resume":
@@ -279,6 +299,16 @@ export const updateCampaignStatus = mutation({
           status: "active",
           updatedAt: Date.now(),
         });
+
+        // Reschedule remaining emails
+        await ctx.scheduler.runAfter(
+          0,
+          internal.campaignScheduler.resumeCampaignEmails,
+          {
+            campaignId: args.id,
+            userId: userId,
+          },
+        );
         break;
 
       default:

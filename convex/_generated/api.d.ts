@@ -8,8 +8,10 @@
  * @module
  */
 
+import type * as ResendOTP from "../ResendOTP.js";
 import type * as audiences from "../audiences.js";
 import type * as auth from "../auth.js";
+import type * as campaignScheduler from "../campaignScheduler.js";
 import type * as campaigns from "../campaigns.js";
 import type * as csvWorkflow from "../csvWorkflow.js";
 import type * as emailLogs from "../emailLogs.js";
@@ -19,6 +21,7 @@ import type * as http from "../http.js";
 import type * as index from "../index.js";
 import type * as leads from "../leads.js";
 import type * as praseCSV from "../praseCSV.js";
+import type * as scheduledEmails from "../scheduledEmails.js";
 import type * as sendMail from "../sendMail.js";
 import type * as user from "../user.js";
 
@@ -37,8 +40,10 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  ResendOTP: typeof ResendOTP;
   audiences: typeof audiences;
   auth: typeof auth;
+  campaignScheduler: typeof campaignScheduler;
   campaigns: typeof campaigns;
   csvWorkflow: typeof csvWorkflow;
   emailLogs: typeof emailLogs;
@@ -48,6 +53,7 @@ declare const fullApi: ApiFromModules<{
   index: typeof index;
   leads: typeof leads;
   praseCSV: typeof praseCSV;
+  scheduledEmails: typeof scheduledEmails;
   sendMail: typeof sendMail;
   user: typeof user;
 }>;

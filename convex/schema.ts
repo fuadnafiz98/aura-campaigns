@@ -66,11 +66,33 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
     sentBy: v.id("users"),
+    // Campaign tracking fields
+    campaignId: v.optional(v.id("campaigns")),
+    emailId: v.optional(v.id("emails")),
+    leadId: v.optional(v.id("leads")),
+    scheduledJobId: v.optional(v.string()), // ID of scheduled job
   })
     .index("byResendId", ["resendId"])
     .index("byStatus", ["status"])
     .index("byUser", ["sentBy"])
-    .index("byCreatedAt", ["createdAt"]),
+    .index("byCreatedAt", ["createdAt"])
+    .index("byCampaign", ["campaignId"])
+    .index("byScheduledJob", ["scheduledJobId"]),
+
+  scheduledJobs: defineTable({
+    campaignId: v.id("campaigns"),
+    emailId: v.id("emails"),
+    leadId: v.id("leads"),
+    scheduledAt: v.number(),
+    status: v.string(), // "scheduled", "cancelled", "sent", "failed"
+    jobId: v.string(), // Convex scheduler job ID
+    createdAt: v.number(),
+    createdBy: v.id("users"),
+  })
+    .index("byCampaign", ["campaignId"])
+    .index("byStatus", ["status"])
+    .index("byScheduledAt", ["scheduledAt"])
+    .index("byJobId", ["jobId"]),
 
   audiences: defineTable({
     name: v.string(),

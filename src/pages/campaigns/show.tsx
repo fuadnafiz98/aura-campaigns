@@ -1,4 +1,21 @@
-import { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
+import { Reorder, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Plus, Play, Pause, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ParticleLine } from "@/components/animations/partical-line";
+import { EmailCard } from "@/components/campaigns/email-card";
+import { CampaignSchedulingStatus } from "@/components/campaigns/campaign-scheduling-status";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "#/_generated/api";
+import { Doc, Id } from "#/_generated/dataModel";
+import { toast } from "sonner";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
+import { PlayIcon } from "@/components/ui/play";
+import { MultiSelector } from "@/components/ui/multi-selector";
+import { Badge } from "@/components/ui/badge";
 import { Reorder, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Plus, Play, Pause, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -472,6 +489,19 @@ export default function EmailCampaignFlow() {
           </>
         )}
       </div>
+
+      {/* Campaign Scheduling Status */}
+      {campaign &&
+        (campaign.status === "active" || campaign.status === "paused") && (
+          <div className="mt-8">
+            <h3 className="text-lg font-semibold mb-4">
+              Email Scheduling Status
+            </h3>
+            <CampaignSchedulingStatus
+              campaignId={campaignId as Id<"campaigns">}
+            />
+          </div>
+        )}
 
       <DeleteConfirmationDialog
         open={deleteDialogOpen}

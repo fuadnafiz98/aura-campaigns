@@ -140,3 +140,64 @@ export const handleEmailEvent = internalMutation({
     );
   },
 });
+
+// Send email from a campaign (for scheduled emails)
+export const _sendEmailFromCampaign = internalMutation({
+  args: {
+    to: v.string(),
+    emailId: v.id("emails"),
+    campaignId: v.id("campaigns"),
+    leadId: v.id("leads"),
+    scheduledJobId: v.string(),
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    console.log("SENDING CAMPAIGN EMAIL TO:", args.to);
+
+    // Get the email content from the database
+    const email = await ctx.db.get(args.emailId);
+    if (!email) {
+      throw new Error(`Email with ID ${args.emailId} not found`);
+    }
+
+    // Get the lead for personalization
+    const lead = await ctx.db.get(args.leadId);
+    if (!lead) {
+      throw new Error(`Lead with ID ${args.leadId} not found`);
+    }
+
+    // Send email via Resend
+    const emailId = await resend.sendEmail(ctx, {
+      from: "Aura Campaigns <campaigns@fuadnafiz98.com>",
+      to: args.to,
+      replyTo: [],
+      subject: email.subject,
+      html: email.body,
+      headers: [
+        {
+          name: "List-Unsubscribe",
+          value: "https://fuadnafiz98.com/unsubscribe",
+        },
+      ],
+    });
+
+    // Create email log entry with campaign tracking
+    const now = Date.now();
+    await ctx.db.insert("emailLogs", {
+      to: args.to,
+      subject: email.subject,
+      body: email.body,
+      resendId: emailId,
+      status: "queued",
+      createdAt: now,
+      updatedAt: now,
+      sentBy: args.userId,
+      campaignId: args.campaignId,
+      emailId: args.emailId,
+      leadId: args.leadId,
+      scheduledJobId: args.scheduledJobId,
+    });
+
+    return emailId;
+  },
+});
