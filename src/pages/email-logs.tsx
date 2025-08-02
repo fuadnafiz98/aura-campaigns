@@ -167,7 +167,7 @@ export const EmailLogsPage = () => {
                             <TableCell className="font-medium text-foreground py-4">
                               <div className="flex items-center space-x-3">
                                 <div className="w-8 h-8 bg-gradient-to-br from-foreground/15 to-background rounded-full flex items-center justify-center text-primary-foreground text-sm font-medium">
-                                  {log.to.charAt(0).toUpperCase()}
+                                  {log?.to?.charAt(0).toUpperCase()}
                                 </div>
                                 <span className="truncate max-w-[200px] text-foreground">
                                   {log.to}

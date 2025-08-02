@@ -5,24 +5,38 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useConvexAuth } from "convex/react";
+import { Loader2 } from "lucide-react";
 
 export function SignInPage() {
   const { signIn } = useAuthActions();
   const navigate = useNavigate();
   const [flow, setFlow] = useState<"signIn" | "signUp">("signIn");
-  const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated } = useConvexAuth();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     formData.set("flow", flow);
     try {
+      setLoading(true);
       await signIn("password", formData);
-      return navigate("/app");
+      // return navigate("/app");
     } catch (error) {
-      setError((error as Error).message);
+      console.error(error);
+      toast.error("Email or password is wrong");
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Handle soft navigation when authentication completes
+  if (isAuthenticated) {
+    navigate("/app", { replace: true });
+    return null;
+  }
 
   return (
     <div className="grid place-content-center w-full h-screen">
@@ -38,8 +52,9 @@ export function SignInPage() {
         <Input type="email" name="email" placeholder="Email" />
 
         <Input type="password" name="password" placeholder="Password" />
-        <Button className="cursor-pointer" type="submit">
-          {flow === "signIn" ? "Sign in" : "Sign up"}
+        <Button className="cursor-pointer" type="submit" disabled={loading}>
+          {loading ? <Loader2 className="animate-spin" /> : null}
+          {!loading && (flow === "signIn" ? "Sign in" : "Sign up")}
         </Button>
         <div className="flex flex-row gap-2">
           <span>
@@ -54,13 +69,6 @@ export function SignInPage() {
             {flow === "signIn" ? "Sign up instead" : "Sign in instead"}
           </span>
         </div>
-        {error && (
-          <div className="bg-red-500/20 border-2 border-red-500/50 rounded-md p-2">
-            <p className="text-dark dark:text-light font-mono text-xs">
-              Error signing in: {error}
-            </p>
-          </div>
-        )}
       </form>
     </div>
   );

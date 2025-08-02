@@ -17,7 +17,11 @@ export const getCampaigns = query({
     // Start with base query filtered by user
     let campaignsQuery = ctx.db
       .query("campaigns")
-      .filter((q) => q.eq(q.field("createdBy"), userId));
+      .withIndex("by_creation_time")
+      .filter((q) => q.eq(q.field("createdBy"), userId))
+      .order("desc");
+    // .withIndex("by_creation_time")
+    // .order("desc");
 
     // Apply status filter
     if (args.filterStatus && args.filterStatus !== "all") {
@@ -255,6 +259,7 @@ export const updateCampaignStatus = mutation({
             "Please select at least one audience before publishing",
           );
         }
+
         await ctx.db.patch(args.id, {
           status: "active",
           audienceIds: args.audienceIds,

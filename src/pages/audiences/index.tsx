@@ -187,7 +187,7 @@ export default function AudiencePage() {
                   >
                     <TableCell
                       className="font-medium text-sm hover:underline hover:cursor-pointer hover:text-primary"
-                      onClick={() => navigate(`/audiences/${audience._id}`)}
+                      onClick={() => navigate(`/app/audiences/${audience._id}`)}
                     >
                       {audience.name}
                     </TableCell>

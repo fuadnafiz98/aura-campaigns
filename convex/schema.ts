@@ -37,6 +37,7 @@ export default defineSchema({
     updatedAt: v.optional(v.number()),
     scheduledAt: v.optional(v.number()),
     schedulingStatus: v.optional(v.string()),
+    scheduledJobIds: v.optional(v.array(v.string())), // Store Convex scheduler job IDs
   }).index("byStatus", ["status"]),
 
   emails: defineTable({
@@ -55,18 +56,18 @@ export default defineSchema({
     .index("ordering", ["ordering"]),
 
   emailLogs: defineTable({
-    to: v.string(),
+    to: v.optional(v.string()),
     replyTo: v.optional(v.string()),
-    subject: v.string(),
-    body: v.string(),
-    resendId: v.string(), // Email ID from Resend service
-    status: v.string(), // waiting, queued, sent, delivered, bounced, failed, etc.
+    subject: v.optional(v.string()),
+    body: v.optional(v.string()),
+    resendId: v.optional(v.string()), // Email ID from Resend service
     event: v.optional(v.string()), // Latest event type
     errorMessage: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
     sentBy: v.id("users"),
     // Campaign tracking fields
+    status: v.string(), // waiting, queued, sent, delivered, bounced, failed, etc.
     campaignId: v.optional(v.id("campaigns")),
     emailId: v.optional(v.id("emails")),
     leadId: v.optional(v.id("leads")),
@@ -78,21 +79,6 @@ export default defineSchema({
     .index("byCreatedAt", ["createdAt"])
     .index("byCampaign", ["campaignId"])
     .index("byScheduledJob", ["scheduledJobId"]),
-
-  scheduledJobs: defineTable({
-    campaignId: v.id("campaigns"),
-    emailId: v.id("emails"),
-    leadId: v.id("leads"),
-    scheduledAt: v.number(),
-    status: v.string(), // "scheduled", "cancelled", "sent", "failed"
-    jobId: v.string(), // Convex scheduler job ID
-    createdAt: v.number(),
-    createdBy: v.id("users"),
-  })
-    .index("byCampaign", ["campaignId"])
-    .index("byStatus", ["status"])
-    .index("byScheduledAt", ["scheduledAt"])
-    .index("byJobId", ["jobId"]),
 
   audiences: defineTable({
     name: v.string(),

@@ -4,7 +4,7 @@ import { ArrowLeft, Plus, Play, Pause, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ParticleLine } from "@/components/animations/partical-line";
 import { EmailCard } from "@/components/campaigns/email-card";
-import { CampaignSchedulingStatus } from "@/components/campaigns/campaign-scheduling-status";
+import { CampaignSchedulingStatus } from "@/components/campaigns/campaign-analytics";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "#/_generated/api";
@@ -16,6 +16,7 @@ import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-di
 import { PlayIcon } from "@/components/ui/play";
 import { MultiSelector } from "@/components/ui/multi-selector";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 type Email = Doc<"emails">;
 
@@ -238,7 +239,7 @@ export default function EmailCampaignFlow() {
       toast.success("Campaign deleted successfully");
       setDeleteDialogOpen(false);
       // Redirect to campaigns list after deletion
-      navigate("/campaigns");
+      navigate("/app/campaigns");
     } catch (error) {
       toast.error("Failed to delete campaign");
       console.error("Error deleting campaign:", error);
@@ -258,7 +259,7 @@ export default function EmailCampaignFlow() {
           <span>Go back to campaigns</span>
         </Link>
       </div>
-      <div className="w-full max-w-2xl mx-auto p-6">
+      <div className="w-full max-w-4xl mx-auto p-6">
         {/* Campaign Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
@@ -271,7 +272,7 @@ export default function EmailCampaignFlow() {
               </h2>
               <div className="flex items-center gap-3">
                 <p className="text-muted-foreground">
-                  Drag and drop to reorder your email sequence
+                  Manage your email campaign sequence and analytics
                 </p>
               </div>
             </div>
@@ -433,59 +434,102 @@ export default function EmailCampaignFlow() {
             </p>
           </>
         ) : (
-          <>
-            <div className="relative">
-              <ParticleLine count={emails.length} />
+          <Tabs defaultValue="sequence" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="sequence">Sequence</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            </TabsList>
 
-              <Reorder.Group
-                axis="y"
-                values={emails}
-                onReorder={handleReorder}
-                className="space-y-8"
-              >
-                <AnimatePresence>
-                  {emails.map((email) => (
-                    <EmailCard key={email._id} email={email} />
-                  ))}
-                </AnimatePresence>
-              </Reorder.Group>
-            </div>
+            <TabsContent value="sequence" className="mt-6">
+              <div className="w-full max-w-2xl mx-auto">
+                <div className="mb-4">
+                  <p className="text-muted-foreground text-center">
+                    Drag and drop to reorder your email sequence
+                  </p>
+                </div>
 
-            <div className="flex items-center justify-center w-full my-6">
-              <Button
-                onClick={handleAddEmail}
-                disabled={loading}
-                className="cursor-pointer bg-primary hover:bg-primary/80 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/30"
-              >
-                {loading ? (
-                  <>
-                    <LoadingSpinner size="sm" />
-                    Creating email...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Email
-                  </>
-                )}
-              </Button>
-            </div>
-          </>
+                <div className="relative">
+                  <ParticleLine count={emails.length} />
+
+                  <Reorder.Group
+                    axis="y"
+                    values={emails}
+                    onReorder={handleReorder}
+                    className="space-y-8"
+                  >
+                    <AnimatePresence>
+                      {emails.map((email) => (
+                        <EmailCard key={email._id} email={email} />
+                      ))}
+                    </AnimatePresence>
+                  </Reorder.Group>
+                </div>
+
+                <div className="flex items-center justify-center w-full my-6">
+                  <Button
+                    onClick={handleAddEmail}
+                    disabled={
+                      loading || (campaign && campaign.status === "completed")
+                    }
+                    className="cursor-pointer bg-primary hover:bg-primary/80 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/30"
+                  >
+                    {loading ? (
+                      <>
+                        <LoadingSpinner size="sm" />
+                        Creating email...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Email
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="analytics" className="mt-6">
+              {campaign &&
+              (campaign.status === "active" ||
+                campaign.status === "paused" ||
+                campaign.status === "completed") ? (
+                <div className="w-full">
+                  <div className="mb-6">
+                    <h3 className="text-xl font-semibold mb-2">
+                      Email Scheduling Status
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Track the status and progress of your campaign's scheduled
+                      emails
+                    </p>
+                  </div>
+                  <CampaignSchedulingStatus
+                    campaignId={campaignId as Id<"campaigns">}
+                  />
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="mb-4">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                      <Play className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">
+                      No Analytics Available
+                    </h3>
+                    <p className="text-muted-foreground max-w-md mx-auto">
+                      Analytics will be available once your campaign is
+                      published and active.
+                      {campaign?.status === "draft" &&
+                        " Publish your campaign to start tracking email performance."}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         )}
       </div>
-
-      {/* Campaign Scheduling Status */}
-      {campaign &&
-        (campaign.status === "active" || campaign.status === "paused") && (
-          <div className="mt-8">
-            <h3 className="text-lg font-semibold mb-4">
-              Email Scheduling Status
-            </h3>
-            <CampaignSchedulingStatus
-              campaignId={campaignId as Id<"campaigns">}
-            />
-          </div>
-        )}
 
       <DeleteConfirmationDialog
         open={deleteDialogOpen}

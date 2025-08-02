@@ -115,6 +115,7 @@ export const EmailCard = React.memo(({ email }: { email: Email }) => {
 
       <EmailEditDialog
         id={email._id}
+        status={email.status}
         isOpen={isOpen}
         onOpenChange={setIsOpen}
       />

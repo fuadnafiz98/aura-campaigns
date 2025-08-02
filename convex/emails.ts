@@ -1,6 +1,20 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+
+export const internalEmailsList = internalQuery({
+  args: {
+    campaignId: v.id("campaigns"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("emails")
+      .withIndex("ordering")
+      .order("asc")
+      .filter((q) => q.eq(q.field("campaignId"), args.campaignId))
+      .collect();
+  },
+});
 
 export const emailsList = query({
   args: {
@@ -17,6 +31,17 @@ export const emailsList = query({
 });
 
 export const getEmail = query({
+  args: {
+    id: v.id("emails"),
+  },
+  handler: async (ctx, args) => {
+    const email = await ctx.db.get(args.id);
+    if (!email) throw new Error("Email not found");
+    return email;
+  },
+});
+
+export const internalGetEmail = internalQuery({
   args: {
     id: v.id("emails"),
   },

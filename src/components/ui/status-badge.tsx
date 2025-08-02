@@ -27,11 +27,17 @@ export function StatusBadge({
             variant: "secondary" as const,
             color: "text-chart-2", // Blue from your theme
           };
+        case "running":
+          return {
+            label: "Running",
+            variant: "secondary" as const,
+            color: "text-chart-3",
+          };
         case "sent":
           return {
             label: "Sent",
             variant: "default" as const,
-            color: "text-chart-1", // Primary green from your theme
+            color: "text-chart-6", // Primary green from your theme
           };
         case "delivered":
           return {

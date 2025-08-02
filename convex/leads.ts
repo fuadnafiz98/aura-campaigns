@@ -1,6 +1,6 @@
 // in convex/leads.ts
 import { v } from "convex/values";
-import { query } from "./_generated/server";
+import { internalQuery, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
@@ -31,5 +31,28 @@ export const getLeadsCount = query({
 
     const allLeadsInFilter = await queryBuilder.collect();
     return allLeadsInFilter.length;
+  },
+});
+
+// Query to get a single lead by ID (internal use)
+export const getLead = query({
+  args: {
+    id: v.id("leads"),
+  },
+  handler: async (ctx, args) => {
+    const lead = await ctx.db.get(args.id);
+    if (!lead) throw new Error("Lead not found");
+    return lead;
+  },
+});
+
+export const internalGetLead = internalQuery({
+  args: {
+    id: v.id("leads"),
+  },
+  handler: async (ctx, args) => {
+    const lead = await ctx.db.get(args.id);
+    if (!lead) throw new Error("Lead not found");
+    return lead;
   },
 });

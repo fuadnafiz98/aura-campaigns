@@ -1,6 +1,11 @@
 import { v } from "convex/values";
-import { internalMutation, internalAction } from "./_generated/server";
+import {
+  internalMutation,
+  internalAction,
+  internalQuery,
+} from "./_generated/server";
 import { internal } from "./_generated/api";
+import { getEmail } from "./emails";
 
 // Calculate delay in milliseconds
 function calculateDelayMs(delay: number, delayUnit: string): number {
@@ -17,7 +22,7 @@ function calculateDelayMs(delay: number, delayUnit: string): number {
 }
 
 // Schedule all emails for a campaign when published
-export const scheduleCampaignEmails = internalAction({
+export const scheduleCampaignEmails = internalMutation({
   args: {
     campaignId: v.id("campaigns"),
     userId: v.id("users"),
@@ -26,14 +31,7 @@ export const scheduleCampaignEmails = internalAction({
     console.log(`Scheduling emails for campaign: ${args.campaignId}`);
 
     try {
-      // Get campaign details
-      const campaign = await ctx.runMutation(
-        internal.campaignScheduler.getCampaignDetails,
-        {
-          campaignId: args.campaignId,
-        },
-      );
-
+      const campaign = await ctx.db.get(args.campaignId);
       if (
         !campaign ||
         !campaign.audienceIds ||
@@ -42,26 +40,21 @@ export const scheduleCampaignEmails = internalAction({
         throw new Error("Campaign not found or no audiences selected");
       }
 
-      // Get emails for the campaign, sorted by ordering
-      const emails = await ctx.runMutation(
-        internal.campaignScheduler.getCampaignEmails,
-        {
-          campaignId: args.campaignId,
-        },
-      );
-
+      const emails = await ctx.runQuery(internal.emails.internalEmailsList, {
+        campaignId: args.campaignId,
+      });
       if (!emails || emails.length === 0) {
         throw new Error("No emails found for campaign");
       }
 
-      // Get first 3 leads from each audience (as requested)
+      // Get leads from all audiences using query
       const allLeads = [];
       for (const audienceId of campaign.audienceIds) {
-        const audienceLeads = await ctx.runMutation(
+        const audienceLeads = await ctx.runQuery(
           internal.campaignScheduler.getAudienceLeads,
           {
             audienceId,
-            limit: 3,
+            limit: 4,
           },
         );
         allLeads.push(...audienceLeads);
@@ -75,6 +68,14 @@ export const scheduleCampaignEmails = internalAction({
 
       let totalScheduledJobs = 0;
       const now = Date.now();
+      const scheduledJobIds = [];
+
+      // Mark all emails as "scheduled"
+      for (const email of emails) {
+        await ctx.db.patch(email._id, {
+          status: "scheduled",
+        });
+      }
 
       // Schedule emails for each lead
       for (const lead of allLeads) {
@@ -85,27 +86,32 @@ export const scheduleCampaignEmails = internalAction({
           const delayMs = calculateDelayMs(email.delay, email.delayUnit);
           const scheduledAt = baseTime + delayMs;
 
-          // Generate a simple unique job ID
-          const simpleJobId = crypto.randomUUID();
+          const emailLogId = await ctx.db.insert("emailLogs", {
+            campaignId: args.campaignId,
+            to: lead.email,
+            subject: email.subject,
+            emailId: email._id,
+            leadId: lead._id,
+            status: "scheduled",
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            sentBy: args.userId,
+          });
 
-          // Schedule the email
-          await ctx.scheduler.runAt(
+          // Schedule the email and get the job ID
+          const jobId = await ctx.scheduler.runAt(
             scheduledAt,
-            internal.scheduledEmails.sendScheduledEmail,
+            internal.campaignScheduler.sendScheduledCampaignEmail,
             {
-              jobId: simpleJobId,
+              campaignId: args.campaignId,
+              email: email._id,
+              emailLogId: emailLogId,
+              leadId: lead._id,
+              userId: args.userId,
             },
           );
 
-          // Create scheduled job record
-          await ctx.runMutation(internal.scheduledEmails.createScheduledEmail, {
-            campaignId: args.campaignId,
-            emailId: email._id,
-            leadId: lead._id,
-            scheduledAt,
-            jobId: simpleJobId,
-            userId: args.userId,
-          });
+          scheduledJobIds.push(jobId);
 
           // Update base time for the next email in the sequence
           baseTime = scheduledAt;
@@ -115,13 +121,14 @@ export const scheduleCampaignEmails = internalAction({
 
       console.log(`Successfully scheduled ${totalScheduledJobs} email jobs`);
 
-      // Update campaign status to active and mark as scheduled
+      // Update campaign status to active and store scheduled job IDs
       await ctx.runMutation(
         internal.campaignScheduler.updateCampaignSchedulingStatus,
         {
           campaignId: args.campaignId,
           status: "active",
           schedulingStatus: "scheduled",
+          scheduledJobIds: scheduledJobIds,
         },
       );
 
@@ -144,6 +151,118 @@ export const scheduleCampaignEmails = internalAction({
   },
 });
 
+// Function to send a scheduled campaign email
+export const sendScheduledCampaignEmail = internalMutation({
+  args: {
+    campaignId: v.id("campaigns"),
+    email: v.id("emails"),
+    emailLogId: v.id("emailLogs"),
+    leadId: v.id("leads"),
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    console.log(
+      `Executing scheduled email job for email: ${args.emailLogId}, lead: ${args.leadId}`,
+    );
+
+    try {
+      // Get email and lead details directly
+
+      const email = await ctx.db.get(args.email);
+      const lead = await ctx.db.get(args.leadId);
+
+      if (!email || !lead) {
+        console.error(`Email or lead not found for job`);
+        // Update email status to failed
+        if (email) {
+          await ctx.db.patch(email._id, {
+            status: "failed",
+          });
+        }
+        return;
+      }
+
+      await ctx.db.patch(args.emailLogId, {
+        status: "queued",
+      });
+
+      await ctx.db.patch(args.email, {
+        status: "running",
+      });
+
+      // Send the email
+      const emailId = await ctx.runMutation(
+        internal.sendMail._sendEmailFromCampaign,
+        {
+          to: lead.email,
+          emailId: args.email,
+          campaignId: args.campaignId,
+          leadId: args.leadId,
+          userId: args.userId,
+          emailLogId: args.emailLogId,
+        },
+      );
+
+      console.log(`Email sent successfully, email ID: ${emailId}`);
+
+      // Update email status to sent
+      await ctx.db.patch(args.emailLogId, {
+        status: "sent",
+      });
+    } catch (error) {
+      console.error(`Error sending scheduled email:`, error);
+      await ctx.db.patch(args.emailLogId, {
+        status: "failed",
+      });
+    }
+  },
+});
+
+export const updateEmailStatus = internalMutation({
+  args: {
+    emailId: v.id("emails"),
+    status: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.patch(args.emailId, {
+      status: args.status,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+// Create email log entry for scheduled emails
+export const createEmailLogEntry = internalMutation({
+  args: {
+    to: v.string(),
+    subject: v.string(),
+    body: v.string(),
+    status: v.string(),
+    campaignId: v.id("campaigns"),
+    emailId: v.id("emails"),
+    leadId: v.id("leads"),
+    userId: v.id("users"),
+    scheduledJobId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    return await ctx.db.insert("emailLogs", {
+      to: args.to,
+      subject: args.subject,
+      body: args.body,
+      resendId: args.scheduledJobId || `scheduled-${now}`, // Use a temp ID for scheduled emails
+      status: args.status,
+      createdAt: now,
+      updatedAt: now,
+      sentBy: args.userId,
+      campaignId: args.campaignId,
+      emailId: args.emailId,
+      leadId: args.leadId,
+      scheduledJobId: args.scheduledJobId,
+    });
+  },
+});
+
 // Cancel all scheduled emails for a campaign when paused
 export const cancelCampaignEmails = internalAction({
   args: {
@@ -153,17 +272,22 @@ export const cancelCampaignEmails = internalAction({
     console.log(`Cancelling scheduled emails for campaign: ${args.campaignId}`);
 
     try {
-      // Get all scheduled jobs for the campaign
-      const scheduledJobs = await ctx.runMutation(
-        internal.scheduledEmails.cancelCampaignScheduledJobs,
+      // Get campaign to find scheduled job IDs
+      const campaign = await ctx.runQuery(
+        internal.campaignScheduler.getCampaignDetails,
         {
           campaignId: args.campaignId,
         },
       );
 
+      if (!campaign?.scheduledJobIds) {
+        console.log("No scheduled jobs to cancel");
+        return { success: true, cancelledJobs: 0 };
+      }
+
       // Cancel each job in the scheduler
       let cancelledCount = 0;
-      for (const jobId of scheduledJobs) {
+      for (const jobId of campaign.scheduledJobIds) {
         try {
           await ctx.scheduler.cancel(jobId as any);
           cancelledCount++;
@@ -181,6 +305,7 @@ export const cancelCampaignEmails = internalAction({
           campaignId: args.campaignId,
           status: "paused",
           schedulingStatus: "cancelled",
+          scheduledJobIds: [], // Clear the job IDs
         },
       );
 
@@ -198,77 +323,24 @@ export const resumeCampaignEmails = internalAction({
     campaignId: v.id("campaigns"),
     userId: v.id("users"),
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{ success: boolean; rescheduledJobs: number }> => {
     console.log(`Resuming campaign: ${args.campaignId}`);
 
     try {
-      // Get all cancelled jobs for this campaign
-      const cancelledJobs = await ctx.runMutation(
-        internal.campaignScheduler.getCancelledScheduledJobs,
+      // Simply re-run the scheduling logic
+      const result = await ctx.runMutation(
+        internal.campaignScheduler.scheduleCampaignEmails,
         {
           campaignId: args.campaignId,
+          userId: args.userId,
         },
       );
 
-      if (cancelledJobs.length === 0) {
-        console.log("No cancelled jobs to resume");
-        return { success: true, rescheduledJobs: 0 };
-      }
-
-      let rescheduledCount = 0;
-      const now = Date.now();
-
-      // Reschedule each cancelled job
-      for (const job of cancelledJobs) {
-        // Calculate new schedule time (original delay from now)
-        const email = await ctx.runMutation(
-          internal.scheduledEmails.getEmailDetailsInternal,
-          {
-            emailId: job.emailId,
-          },
-        );
-
-        if (!email) continue;
-
-        const delayMs = calculateDelayMs(email.delay, email.delayUnit);
-        const newScheduledAt = now + delayMs;
-
-        // Create new job ID
-        const newJobId = crypto.randomUUID();
-
-        // Schedule the email
-        const jobId = await ctx.scheduler.runAt(
-          newScheduledAt,
-          internal.scheduledEmails.sendScheduledEmail,
-          {
-            jobId: newJobId,
-          },
-        );
-
-        // Update the scheduled job record
-        await ctx.runMutation(internal.campaignScheduler.updateScheduledJob, {
-          scheduledJobId: job._id,
-          newJobId: jobId,
-          newScheduledAt,
-          status: "scheduled",
-        });
-
-        rescheduledCount++;
-      }
-
-      console.log(`Rescheduled ${rescheduledCount} jobs`);
-
-      // Update campaign status
-      await ctx.runMutation(
-        internal.campaignScheduler.updateCampaignSchedulingStatus,
-        {
-          campaignId: args.campaignId,
-          status: "active",
-          schedulingStatus: "scheduled",
-        },
-      );
-
-      return { success: true, rescheduledJobs: rescheduledCount };
+      console.log(`Resumed campaign with ${result.scheduledJobs} jobs`);
+      return { success: true, rescheduledJobs: result.scheduledJobs };
     } catch (error) {
       console.error(`Error resuming campaign ${args.campaignId}:`, error);
       throw error;
@@ -276,8 +348,7 @@ export const resumeCampaignEmails = internalAction({
   },
 });
 
-// Helper internal mutations
-export const getCampaignDetails = internalMutation({
+export const getCampaignDetails = internalQuery({
   args: {
     campaignId: v.id("campaigns"),
   },
@@ -286,20 +357,8 @@ export const getCampaignDetails = internalMutation({
   },
 });
 
-export const getCampaignEmails = internalMutation({
-  args: {
-    campaignId: v.id("campaigns"),
-  },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("emails")
-      .withIndex("byCampaign", (q) => q.eq("campaignId", args.campaignId))
-      .order("asc")
-      .collect();
-  },
-});
-
-export const getAudienceLeads = internalMutation({
+// Get leads from an audience - keep this as it handles the audience-lead relationship
+export const getAudienceLeads = internalQuery({
   args: {
     audienceId: v.id("audiences"),
     limit: v.number(),
@@ -329,6 +388,7 @@ export const updateCampaignSchedulingStatus = internalMutation({
     campaignId: v.id("campaigns"),
     status: v.optional(v.string()),
     schedulingStatus: v.optional(v.string()),
+    scheduledJobIds: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const updateData: any = {
@@ -343,35 +403,52 @@ export const updateCampaignSchedulingStatus = internalMutation({
       updateData.schedulingStatus = args.schedulingStatus;
     }
 
+    if (args.scheduledJobIds !== undefined) {
+      updateData.scheduledJobIds = args.scheduledJobIds;
+    }
+
     return await ctx.db.patch(args.campaignId, updateData);
   },
 });
 
-export const getCancelledScheduledJobs = internalMutation({
+// Query to get campaign scheduling status using Convex's _scheduled_functions
+export const getCampaignSchedulingStatus = internalQuery({
   args: {
     campaignId: v.id("campaigns"),
   },
   handler: async (ctx, args) => {
-    return await ctx.db
-      .query("scheduledJobs")
-      .withIndex("byCampaign", (q) => q.eq("campaignId", args.campaignId))
-      .filter((q) => q.eq(q.field("status"), "cancelled"))
-      .collect();
-  },
-});
+    const campaign = await ctx.db.get(args.campaignId);
+    if (!campaign?.scheduledJobIds) {
+      return { scheduled: 0, completed: 0, failed: 0, cancelled: 0 };
+    }
 
-export const updateScheduledJob = internalMutation({
-  args: {
-    scheduledJobId: v.id("scheduledJobs"),
-    newJobId: v.string(),
-    newScheduledAt: v.number(),
-    status: v.string(),
-  },
-  handler: async (ctx, args) => {
-    return await ctx.db.patch(args.scheduledJobId, {
-      jobId: args.newJobId,
-      scheduledAt: args.newScheduledAt,
-      status: args.status,
-    });
+    const stats = { scheduled: 0, completed: 0, failed: 0, cancelled: 0 };
+
+    for (const jobId of campaign.scheduledJobIds) {
+      try {
+        // Query the _scheduled_functions system table
+        const scheduledFunction = await ctx.db.system
+          .query("_scheduled_functions")
+          .filter((q) => q.eq(q.field("_id"), jobId))
+          .first();
+
+        if (scheduledFunction) {
+          const state = scheduledFunction.state;
+          if (state.kind === "pending") {
+            stats.scheduled++;
+          } else if (state.kind === "success") {
+            stats.completed++;
+          } else if (state.kind === "failed") {
+            stats.failed++;
+          } else if (state.kind === "canceled") {
+            stats.cancelled++;
+          }
+        }
+      } catch (error) {
+        console.warn(`Failed to get status for job ${jobId}:`, error);
+      }
+    }
+
+    return stats;
   },
 });

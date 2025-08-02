@@ -148,8 +148,8 @@ export const _sendEmailFromCampaign = internalMutation({
     emailId: v.id("emails"),
     campaignId: v.id("campaigns"),
     leadId: v.id("leads"),
-    scheduledJobId: v.string(),
     userId: v.id("users"),
+    emailLogId: v.id("emailLogs"),
   },
   handler: async (ctx, args) => {
     console.log("SENDING CAMPAIGN EMAIL TO:", args.to);
@@ -167,7 +167,7 @@ export const _sendEmailFromCampaign = internalMutation({
     }
 
     // Send email via Resend
-    const emailId = await resend.sendEmail(ctx, {
+    const resendId = await resend.sendEmail(ctx, {
       from: "Aura Campaigns <campaigns@fuadnafiz98.com>",
       to: args.to,
       replyTo: [],
@@ -181,23 +181,43 @@ export const _sendEmailFromCampaign = internalMutation({
       ],
     });
 
-    // Create email log entry with campaign tracking
     const now = Date.now();
-    await ctx.db.insert("emailLogs", {
-      to: args.to,
-      subject: email.subject,
-      body: email.body,
-      resendId: emailId,
-      status: "queued",
-      createdAt: now,
+    await ctx.db.patch(args.emailLogId, {
       updatedAt: now,
-      sentBy: args.userId,
-      campaignId: args.campaignId,
-      emailId: args.emailId,
-      leadId: args.leadId,
-      scheduledJobId: args.scheduledJobId,
+      resendId: resendId,
+      status: "queued",
     });
 
-    return emailId;
+    const pendingMails = await ctx.db
+      .query("emailLogs")
+      .withIndex("byCampaign", (q) => q.eq("campaignId", args.campaignId))
+      .filter((q) =>
+        q.or(
+          q.eq(q.field("status"), "scheduled"),
+          q.eq(q.field("status"), "pending"),
+        ),
+      )
+      .collect();
+
+    if (pendingMails.length === 0) {
+      // we have send all the mails,
+      await ctx.db.patch(args.emailId, {
+        status: "sent",
+      });
+    }
+
+    const campaignMails = await ctx.db
+      .query("emails")
+      .withIndex("byCampaign", (q) => q.eq("campaignId", args.campaignId))
+      .collect();
+
+    const sendCampaignMails = campaignMails.filter((c) => c.status === "sent");
+
+    if (campaignMails.length === sendCampaignMails.length) {
+      await ctx.db.patch(args.campaignId, {
+        status: "completed",
+      });
+    }
+    return resendId;
   },
 });

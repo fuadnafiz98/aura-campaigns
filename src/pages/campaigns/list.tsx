@@ -29,7 +29,7 @@ import {
 import { Plus, Filter, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { CreateCampaignModal } from "@/components/modals/campaigns/create-campaign";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 type Campaign = Doc<"campaigns">;
 
@@ -148,7 +148,9 @@ export const CampaignsPage = () => {
                 <TableRow
                   key={campaign._id}
                   className="cursor-pointer hover:bg-accent"
-                  onClick={() => void navigate(`/campaigns/${campaign._id}/`)}
+                  onClick={() =>
+                    void navigate(`/app/campaigns/${campaign._id}/`)
+                  }
                 >
                   <TableCell className="font-medium text-sm">
                     {campaign.name}
@@ -157,13 +159,13 @@ export const CampaignsPage = () => {
                     <Badge
                       variant="outline"
                       className={
-                        "text-sm py-0.5 px-2 " +
+                        "text-sm py-0.5 px-3 " +
                         (campaign.status === "active"
-                          ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
+                          ? "bg-green-700 text-green-100 border-green-800 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
                           : campaign.status === "paused"
-                            ? "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800"
+                            ? "bg-yellow-400 text-yellow-800 border-yellow-400 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800"
                             : campaign.status === "completed"
-                              ? "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800"
+                              ? "bg-blue-400 text-blue-800 border-blue-400 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800"
                               : campaign.status === "draft"
                                 ? "bg-foreground/10 text-foreground border-accent dark:bg-background dark:text-gray-300 dark:border-gray-800"
                                 : "bg-muted text-muted-foreground border-border")

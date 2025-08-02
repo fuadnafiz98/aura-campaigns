@@ -144,10 +144,10 @@ export default function AudienceDetailPage() {
 
   return (
     <>
-      <div className="w-full mx-5 mt-5 mb-2">
+      <div className="mx-5 mt-5 mb-2">
         <BreadcrumbItems
           items={[
-            { label: "Audiences", href: "/audiences" },
+            { label: "Audiences", href: "/app/audiences" },
             { label: audience?.name || "Loading..." },
           ]}
         />

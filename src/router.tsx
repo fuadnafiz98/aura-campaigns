@@ -15,16 +15,26 @@ import ErrorBoundary from "./components/error-boundary";
 import LandingPage from "./pages/landing";
 
 const App = React.lazy(() => import("./App"));
+const WithSideBar = React.lazy(() => import("./components/with-sidebar"));
 const NotFoundPage = React.lazy(() => import("./pages/not-found"));
+// Auth
 const SignInPage = React.lazy(() => import("./pages/auth/sign-in"));
 const OTPSignInPage = React.lazy(() => import("./pages/auth/otp-sign-in"));
 const SignOutPage = React.lazy(() => import("./pages/sign-out"));
+// Leads
 const LeadsPage = React.lazy(() => import("./pages/leads"));
-const EmailCampaignFlow = React.lazy(() => import("./pages/campaigns/show"));
-const WithSideBar = React.lazy(() => import("./components/with-sidebar"));
+
+// Campaigns
 const CampaignsPage = React.lazy(() => import("./pages/campaigns/list"));
+const EmailCampaignFlow = React.lazy(() => import("./pages/campaigns/show"));
+
+// Analytics
 const AnalyticsPage = React.lazy(() => import("./pages/analytics"));
+
+// Dashboard
 const EmailLogsPage = React.lazy(() => import("./pages/email-logs"));
+
+// Audiences
 const AudiencePage = React.lazy(() => import("./pages/audiences"));
 const AudienceDetailPage = React.lazy(() => import("./pages/audiences/detail"));
 

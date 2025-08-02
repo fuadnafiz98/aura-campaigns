@@ -39,10 +39,12 @@ interface EmailEditDialogProps {
   id: Id<"emails">;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
+  status: string | undefined;
 }
 
 export const EmailEditDialog = ({
   id,
+  status,
   isOpen,
   onOpenChange,
 }: EmailEditDialogProps) => {
@@ -223,7 +225,7 @@ export const EmailEditDialog = ({
                 <Button
                   type="submit"
                   className="bg-primary hover:bg-primary/90 cursor-pointer"
-                  disabled={loading}
+                  disabled={loading || status === "sent"}
                 >
                   {loading ? (
                     <>

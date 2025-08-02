@@ -215,6 +215,7 @@ export const getEmailLogsStats = query({
           break;
         case "waiting":
         case "queued":
+        case "scheduled":
           stats.pending++;
           break;
         default:
@@ -325,49 +326,45 @@ export const getCampaignEmailStats = query({
       .collect();
 
     const stats = {
-      total: allLogs.length,
-      sent: 0,
-      delivered: 0,
-      bounced: 0,
-      failed: 0,
-      pending: 0,
-      opened: 0,
-      clicked: 0,
-      complained: 0,
+      total: 0, // Total sent mails (excluding pending/queued)
+      delivered: 0, // Successfully delivered mails (sent + delivered + opened + clicked)
+      clicked: 0, // Amount of mails people clicked (clicked also means delivered)
+      failed: 0, // Bounced/failed and all other status without pending or queued
     };
 
     allLogs.forEach((log) => {
       const status = log.status.toLowerCase();
+
+      // Skip pending and queued emails from total count
+      if (
+        status === "pending" ||
+        status === "queued" ||
+        status === "scheduled"
+      ) {
+        return;
+      }
+
+      // Count as total sent (everything except pending/queued/scheduled)
+      stats.total++;
+
       switch (status) {
         case "sent":
-          stats.sent++;
-          break;
         case "delivered":
           stats.delivered++;
           break;
-        case "bounced":
-          stats.bounced++;
-          break;
-        case "failed":
-          stats.failed++;
-          break;
         case "opened":
           stats.delivered++;
-          stats.opened++;
           break;
         case "clicked":
           stats.delivered++;
           stats.clicked++;
           break;
+        case "bounced":
+        case "failed":
         case "complained":
-          stats.complained++;
-          break;
-        case "waiting":
-        case "queued":
-          stats.pending++;
-          break;
         default:
-          stats.pending++;
+          // All other statuses count as failed
+          stats.failed++;
           break;
       }
     });
