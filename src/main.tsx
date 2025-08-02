@@ -5,8 +5,6 @@ import { ConvexReactClient } from "convex/react";
 import "./index.css";
 import { Router } from "./router.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
-// import { Analytics } from "@vercel/analytics/next";
-// import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
@@ -25,7 +23,5 @@ createRoot(document.getElementById("root")!).render(
         },
       }}
     />
-    {/* <Analytics /> */}
-    {/* <SpeedInsights /> */}
   </StrictMode>,
 );

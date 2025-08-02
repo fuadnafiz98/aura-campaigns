@@ -24,8 +24,8 @@ export default function CTA({
   title = "Ready to launch smarter campaigns?",
   buttons = [
     {
-      href: "/sign-in",
-      text: "Start Free Trial",
+      href: "/login",
+      text: "Sign Up Free",
       variant: "default",
     },
     {

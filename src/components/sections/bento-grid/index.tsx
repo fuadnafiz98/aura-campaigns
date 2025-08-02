@@ -329,7 +329,10 @@ const tiles = [
 
 export default function BentoGrid() {
   return (
-    <section className="bg-background text-foreground px-4 py-12 sm:py-24 md:py-32">
+    <section
+      id="features"
+      className="bg-background text-foreground px-4 py-12 sm:py-24 md:py-32"
+    >
       <div className="max-w-container mx-auto flex flex-col items-center gap-6 sm:gap-12">
         <h2 className="text-center text-3xl font-semibold text-balance sm:text-5xl">
           Email marketing made simple

@@ -56,7 +56,6 @@ type NavbarActionProps = {
 };
 
 export default function Navbar({
-  logo = "📧",
   name = "Aura Campaigns",
   homeUrl = "/",
   mobileLinks = [
@@ -67,12 +66,12 @@ export default function Navbar({
   actions = [
     {
       text: "Sign in",
-      href: "/sign-in",
+      href: "/login",
       isButton: false,
     },
     {
-      text: "Start Free Trial",
-      href: "/sign-in",
+      text: "Sign Up Free",
+      href: "/login",
       isButton: true,
       variant: "default",
     },
@@ -85,24 +84,12 @@ export default function Navbar({
       <div className="max-w-container relative mx-auto">
         <NavbarComponent>
           <NavbarLeft>
-            {homeUrl.startsWith("/") ? (
-              <Link
-                to={homeUrl}
-                className="flex items-center gap-2 text-xl font-bold"
-              >
-                {name}
-              </Link>
-            ) : (
-              <a
-                href={homeUrl}
-                className="flex items-center gap-2 text-xl font-bold"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {logo}
-                {name}
-              </a>
-            )}
+            <Link
+              to={homeUrl}
+              className="flex items-center gap-2 text-xl font-bold"
+            >
+              {name}
+            </Link>
             <Navigation />
           </NavbarLeft>
           <NavbarRight>
@@ -195,6 +182,14 @@ export default function Navbar({
                       >
                         {link.text}
                       </Link>
+                    ) : link.href.startsWith("#") ? (
+                      <a
+                        key={index}
+                        href={link.href}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        {link.text}
+                      </a>
                     ) : (
                       <a
                         key={index}

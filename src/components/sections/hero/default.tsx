@@ -42,11 +42,11 @@ export default function Hero({
     />
   ),
   badge = (
-    <Badge variant="outline" className="animate-appear">
+    <Badge variant="outline" className="animate-appear h-8 px-4">
       <span className="text-muted-foreground">
         New: Aura Campaigns is now live!
       </span>
-      <a href="/sign-in" className="flex items-center gap-1">
+      <a href="/login" className="flex items-center gap-1">
         Try it free
         <ArrowRightIcon className="size-3" />
       </a>
@@ -59,7 +59,7 @@ export default function Hero({
       variant: "default",
     },
     {
-      href: "https://github.com/fuadnafiz98/aura-campaigns",
+      href: "https://github.com/fuadnafiz98",
       text: "View on GitHub",
       variant: "glow",
       icon: <Github className="mr-2 size-4" />,
