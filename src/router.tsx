@@ -4,6 +4,7 @@ import {
   createRoutesFromElements,
   Route,
   RouterProvider,
+  Navigate,
 } from "react-router-dom";
 import React, { Suspense } from "react";
 
@@ -15,7 +16,8 @@ import LandingPage from "./pages/landing";
 
 const App = React.lazy(() => import("./App"));
 const NotFoundPage = React.lazy(() => import("./pages/not-found"));
-const SignInPage = React.lazy(() => import("./pages/sign-in"));
+const SignInPage = React.lazy(() => import("./pages/auth/sign-in"));
+const OTPSignInPage = React.lazy(() => import("./pages/auth/otp-sign-in"));
 const SignOutPage = React.lazy(() => import("./pages/sign-out"));
 const LeadsPage = React.lazy(() => import("./pages/leads"));
 const EmailCampaignFlow = React.lazy(() => import("./pages/campaigns/show"));
@@ -50,7 +52,8 @@ const router = createBrowserRouter(
               </Authenticated>
               <Unauthenticated>
                 <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                  <SignInPage />
+                  {/* <SignInPage /> */}
+                  <OTPSignInPage />
                 </Suspense>
               </Unauthenticated>
             </>
@@ -70,7 +73,8 @@ const router = createBrowserRouter(
               </Authenticated>
               <Unauthenticated>
                 <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                  <SignInPage />
+                  {/* <SignInPage /> */}
+                  <OTPSignInPage />
                 </Suspense>
               </Unauthenticated>
             </>
@@ -85,7 +89,7 @@ const router = createBrowserRouter(
               </AuthLoading>
               <Unauthenticated>
                 <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                  <SignInPage />
+                  <OTPSignInPage />
                 </Suspense>
               </Unauthenticated>
             </>
@@ -105,7 +109,8 @@ const router = createBrowserRouter(
               </Authenticated>
               <Unauthenticated>
                 <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                  <SignInPage />
+                  {/* <SignInPage /> */}
+                  <OTPSignInPage />
                 </Suspense>
               </Unauthenticated>
             </>
@@ -127,7 +132,8 @@ const router = createBrowserRouter(
               </Authenticated>
               <Unauthenticated>
                 <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                  <SignInPage />
+                  {/* <SignInPage /> */}
+                  <OTPSignInPage />
                 </Suspense>
               </Unauthenticated>
             </>
@@ -149,7 +155,8 @@ const router = createBrowserRouter(
               </Authenticated>
               <Unauthenticated>
                 <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                  <SignInPage />
+                  {/* <SignInPage /> */}
+                  <OTPSignInPage />
                 </Suspense>
               </Unauthenticated>
             </>
@@ -171,7 +178,8 @@ const router = createBrowserRouter(
               </Authenticated>
               <Unauthenticated>
                 <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                  <SignInPage />
+                  {/* <SignInPage /> */}
+                  <OTPSignInPage />
                 </Suspense>
               </Unauthenticated>
             </>
@@ -193,7 +201,8 @@ const router = createBrowserRouter(
               </Authenticated>
               <Unauthenticated>
                 <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                  <SignInPage />
+                  {/* <SignInPage /> */}
+                  <OTPSignInPage />
                 </Suspense>
               </Unauthenticated>
             </>
@@ -215,7 +224,8 @@ const router = createBrowserRouter(
               </Authenticated>
               <Unauthenticated>
                 <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                  <SignInPage />
+                  {/* <SignInPage /> */}
+                  <OTPSignInPage />
                 </Suspense>
               </Unauthenticated>
             </>
@@ -225,15 +235,60 @@ const router = createBrowserRouter(
 
       {/* Standalone routes */}
       <Route
+        path="/signin"
+        element={
+          <>
+            <AuthLoading>
+              <Skeleton className="h-full m-4" />
+            </AuthLoading>
+            <Authenticated>
+              {/* Redirect to app if already authenticated */}
+              <Navigate to="/app" replace />
+            </Authenticated>
+            <Unauthenticated>
+              <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                <SignInPage />
+              </Suspense>
+            </Unauthenticated>
+          </>
+        }
+        errorElement={<ErrorBoundary />}
+      />
+      <Route
         path="/login"
         element={
           <>
             <AuthLoading>
               <Skeleton className="h-full m-4" />
             </AuthLoading>
+            <Authenticated>
+              {/* Redirect to app if already authenticated */}
+              <Navigate to="/app" replace />
+            </Authenticated>
             <Unauthenticated>
               <Suspense fallback={<Skeleton className="h-full m-4" />}>
-                <SignInPage />
+                <OTPSignInPage />
+              </Suspense>
+            </Unauthenticated>
+          </>
+        }
+        errorElement={<ErrorBoundary />}
+      />
+
+      <Route
+        path="/otp-sign-in"
+        element={
+          <>
+            <AuthLoading>
+              <Skeleton className="h-full m-4" />
+            </AuthLoading>
+            <Authenticated>
+              {/* Redirect to app if already authenticated */}
+              <Navigate to="/app" replace />
+            </Authenticated>
+            <Unauthenticated>
+              <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                <OTPSignInPage />
               </Suspense>
             </Unauthenticated>
           </>
