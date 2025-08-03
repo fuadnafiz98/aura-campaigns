@@ -67,8 +67,8 @@ export const parseCSVData = internalAction({
         },
       );
 
-      if (args.audienceId && batchResult) {
-        importedLeadIds.push(...batchResult);
+      if (args.audienceId && batchResult.leadIds.length > 0) {
+        importedLeadIds.push(...batchResult.leadIds);
       }
     }
 

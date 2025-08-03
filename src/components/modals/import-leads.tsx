@@ -148,7 +148,15 @@ export const UploadLeadsModal = ({
           <DialogTitle>Upload Leads</DialogTitle>
           <DialogDescription>
             Upload a CSV file to import new leads. Expected columns: name,
-            email, company, category
+            email, company, category.{" "}
+            <a
+              href="/sample.csv"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              Download sample template
+            </a>
           </DialogDescription>
         </DialogHeader>
 

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { usePaginatedQuery, useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { Doc, Id } from "../../convex/_generated/dataModel";
+import { useNavigate } from "react-router-dom";
+import { api } from "../../../convex/_generated/api";
+import { Doc, Id } from "../../../convex/_generated/dataModel";
 
 // Import your UI components
 import {
@@ -29,13 +30,14 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Upload, Filter, ArrowUpDown } from "lucide-react";
+import { Upload, ArrowUpDown, Eye } from "lucide-react";
 import { UploadLeadsModal } from "@/components/modals/import-leads";
 
 // Define the Lead type based on your Convex document
 type Lead = Doc<"leads">;
 
 export const LeadsPage = () => {
+  const navigate = useNavigate();
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedLeads, setSelectedLeads] = useState<Id<"leads">[]>([]);
   const [sortBy, setSortBy] = useState("name");
@@ -116,14 +118,14 @@ export const LeadsPage = () => {
               size="sm"
               variant="outline"
               onClick={() => setIsImportModalOpen(true)}
-              className="w-24 h-10 border-border text-sm bg-transparent cursor-pointer"
+              className="w-24 h-9 border-border text-sm bg-transparent cursor-pointer"
             >
               <Upload className="h-3 w-3 mr-1" />
               Import
             </Button>
 
             {/* Filter by Category */}
-            <Select value={filterCategory} onValueChange={setFilterCategory}>
+            {/* <Select value={filterCategory} onValueChange={setFilterCategory}>
               <SelectTrigger className="w-24 h-7 cursor-pointer border-border text-sm">
                 <Filter className="h-3 w-3 mr-1" />
                 <SelectValue />
@@ -134,11 +136,11 @@ export const LeadsPage = () => {
                 <SelectItem value="warm">Warm</SelectItem>
                 <SelectItem value="cold">Cold</SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
 
             {/* Sort By */}
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-28 cursor-pointer h-7 border-border text-sm">
+              <SelectTrigger className="w-32 cursor-pointer h-7 border-border text-sm">
                 <ArrowUpDown className="h-3 w-3 mr-1" />
                 <SelectValue />
               </SelectTrigger>
@@ -184,10 +186,7 @@ export const LeadsPage = () => {
               </TableRow>
             ) : (
               leads.map((lead: Lead) => (
-                <TableRow
-                  key={lead._id}
-                  className="cursor-pointer hover:bg-accent"
-                >
+                <TableRow key={lead._id} className="hover:bg-accent">
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox
                       checked={selectedLeads.includes(lead._id)}
@@ -198,12 +197,32 @@ export const LeadsPage = () => {
                   <TableCell className="font-medium text-sm">
                     {lead.name}
                   </TableCell>
-                  <TableCell className="text-sm">{lead.email}</TableCell>
+                  <TableCell className="text-sm">
+                    <button
+                      onClick={() => navigate(`/app/leads/${lead._id}`)}
+                      className="text-primary hover:underline cursor-pointer"
+                    >
+                      {lead.email}
+                    </button>
+                  </TableCell>
                   <TableCell className="text-sm">{lead.company}</TableCell>
                   <TableCell>
                     <Badge className={`text-sm py-0 px-1`}>
                       {lead.category}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/app/leads/${lead._id}`);
+                      }}
+                      className="h-8 px-3 cursor-pointer"
+                    >
+                      <Eye className="h-3 w-3" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))

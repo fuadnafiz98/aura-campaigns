@@ -22,7 +22,8 @@ const SignInPage = React.lazy(() => import("./pages/auth/sign-in"));
 const OTPSignInPage = React.lazy(() => import("./pages/auth/otp-sign-in"));
 const SignOutPage = React.lazy(() => import("./pages/sign-out"));
 // Leads
-const LeadsPage = React.lazy(() => import("./pages/leads"));
+const LeadsPage = React.lazy(() => import("./pages/leads/list"));
+const LeadProfilePage = React.lazy(() => import("./pages/leads/profile"));
 
 // Campaigns
 const CampaignsPage = React.lazy(() => import("./pages/campaigns/list"));
@@ -137,6 +138,29 @@ const router = createBrowserRouter(
                 <WithSideBar label="Leads">
                   <Suspense fallback={<Skeleton className="h-full m-4" />}>
                     <LeadsPage />
+                  </Suspense>
+                </WithSideBar>
+              </Authenticated>
+              <Unauthenticated>
+                <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                  {/* <SignInPage /> */}
+                  <OTPSignInPage />
+                </Suspense>
+              </Unauthenticated>
+            </>
+          }
+        />
+        <Route
+          path="leads/:leadId"
+          element={
+            <>
+              <AuthLoading>
+                <LoadingScreen label={"Lead Profile"} />
+              </AuthLoading>
+              <Authenticated>
+                <WithSideBar label="Lead Profile">
+                  <Suspense fallback={<Skeleton className="h-full m-4" />}>
+                    <LeadProfilePage />
                   </Suspense>
                 </WithSideBar>
               </Authenticated>

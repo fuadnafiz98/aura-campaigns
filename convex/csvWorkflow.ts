@@ -85,22 +85,54 @@ export const insertCSVBatch = internalMutation({
     userId: v.id("users"),
   },
   handler: async (ctx, args) => {
-    console.log("pushing to db");
     const leadIds = [];
+    const skippedEmails = [];
 
+    const recordsByEmail = new Map();
     for (const record of args.records) {
-      const leadId = await ctx.db.insert("leads", {
-        name: record.name,
-        email: record.email,
-        company: record.company,
-        category: record.category,
-        imported_by: args.userId,
-        imported_at: Date.now(),
-      });
-      leadIds.push(leadId);
+      if (!recordsByEmail.has(record.email)) {
+        recordsByEmail.set(record.email, record);
+      } else {
+        skippedEmails.push(record.email);
+      }
     }
 
-    return leadIds;
+    const uniqueRecords = Array.from(recordsByEmail.values());
+    const existingEmails = new Set();
+
+    const CHUNK_SIZE = 50;
+    for (let i = 0; i < uniqueRecords.length; i += CHUNK_SIZE) {
+      const chunk = uniqueRecords.slice(i, i + CHUNK_SIZE);
+      const promises = chunk.map((record) =>
+        ctx.db
+          .query("leads")
+          .withIndex("byEmail", (q) => q.eq("email", record.email))
+          .first(),
+      );
+
+      const results = await Promise.all(promises);
+      results.forEach((lead, index) => {
+        if (lead) existingEmails.add(chunk[index].email);
+      });
+    }
+
+    for (const record of uniqueRecords) {
+      if (existingEmails.has(record.email)) {
+        skippedEmails.push(record.email);
+      } else {
+        const leadId = await ctx.db.insert("leads", {
+          name: record.name,
+          email: record.email,
+          company: record.company,
+          category: record.category,
+          imported_by: args.userId,
+          imported_at: Date.now(),
+        });
+        leadIds.push(leadId);
+      }
+    }
+
+    return { leadIds, skippedEmails };
   },
 });
 
