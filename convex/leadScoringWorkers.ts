@@ -65,8 +65,14 @@ async function calculateLeadScoreInternal(ctx: any, leadId: string) {
 
   const totalSent = emailLogs.length;
   const totalDelivered = emailLogs.filter((log: any) => log.deliveredAt).length;
-  const totalOpened = emailLogs.filter((log: any) => log.openedAt).length;
-  const totalClicked = emailLogs.filter((log: any) => log.clickedAt).length;
+  const totalOpened = emailLogs.reduce(
+    (sum: number, log: any) => sum + (log.openCount || 0),
+    0,
+  );
+  const totalClicked = emailLogs.reduce(
+    (sum: number, log: any) => sum + (log.clickCount || 0),
+    0,
+  );
 
   const openRate =
     totalDelivered > 0 ? (totalOpened / totalDelivered) * 100 : 0;
@@ -97,17 +103,27 @@ async function calculateLeadScoreInternal(ctx: any, leadId: string) {
 
   const now = Date.now();
   const recentThreshold = now - 7 * 24 * 60 * 60 * 1000;
-  const recentActivity = emailLogs.filter(
-    (log: any) =>
-      (log.openedAt && log.openedAt > recentThreshold) ||
-      (log.clickedAt && log.clickedAt > recentThreshold),
-  ).length;
+  const recentActivity = emailLogs.reduce((sum: number, log: any) => {
+    let count = 0;
+    if (log.openedAt && log.openedAt > recentThreshold) {
+      count += log.openCount || 0;
+    }
+    if (log.clickedAt && log.clickedAt > recentThreshold) {
+      count += log.clickCount || 0;
+    }
+    return sum + count;
+  }, 0);
 
-  const olderActivity = emailLogs.filter(
-    (log: any) =>
-      (log.openedAt && log.openedAt <= recentThreshold) ||
-      (log.clickedAt && log.clickedAt <= recentThreshold),
-  ).length;
+  const olderActivity = emailLogs.reduce((sum: number, log: any) => {
+    let count = 0;
+    if (log.openedAt && log.openedAt <= recentThreshold) {
+      count += log.openCount || 0;
+    }
+    if (log.clickedAt && log.clickedAt <= recentThreshold) {
+      count += log.clickCount || 0;
+    }
+    return sum + count;
+  }, 0);
 
   let engagementTrend: string | undefined;
   if (recentActivity > olderActivity) engagementTrend = "increasing";
@@ -124,8 +140,8 @@ async function calculateLeadScoreInternal(ctx: any, leadId: string) {
     totalEmailsClicked: totalClicked,
     lastEngagementAt: lastEngagement?.timestamp,
     lastEngagementType: lastEngagement?.type,
-    openRate: Math.round(openRate * 100) / 100,
-    clickRate: Math.round(clickRate * 100) / 100,
+    openRate,
+    clickRate,
     engagementTrend,
   });
 }
@@ -153,11 +169,9 @@ export const applyDecayToAllScores = internalMutation({
           });
           updated++;
         } else if (daysSinceLastActivity > 1) {
-          const decayFactor = Math.pow(
-            1 - SCORING_CONFIG.decay.dailyDecayRate,
-            daysSinceLastActivity,
+          const newScore = Math.round(
+            applyTimeDecay(score.hotScore, score.lastEngagementAt),
           );
-          const newScore = Math.round(score.hotScore * decayFactor);
           const newTemperature = getTemperature(newScore);
 
           if (newScore !== score.hotScore) {
@@ -176,6 +190,48 @@ export const applyDecayToAllScores = internalMutation({
   },
 });
 
+export const applyMinuteDecayToActiveScores = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    // Only apply minute decay to recently active leads to be more efficient
+    const now = Date.now();
+    const recentThreshold = now - 24 * 60 * 60 * 1000; // Last 24 hours
+
+    const recentScores = await ctx.db
+      .query("leadScores")
+      .filter((q) =>
+        q.and(
+          q.gt(q.field("hotScore"), 0),
+          q.gte(q.field("lastEngagementAt"), recentThreshold),
+        ),
+      )
+      .collect();
+
+    let updated = 0;
+
+    for (const score of recentScores) {
+      if (score.lastEngagementAt && score.hotScore > 0) {
+        const newScore = Math.round(
+          applyTimeDecay(score.hotScore, score.lastEngagementAt, true),
+        );
+        const newTemperature = getTemperature(newScore);
+
+        if (newScore !== score.hotScore) {
+          await ctx.db.patch(score._id, {
+            hotScore: newScore,
+            temperature: newTemperature,
+            lastCalculatedAt: now,
+          });
+          updated++;
+        }
+      }
+    }
+
+    return { totalProcessed: recentScores.length, updated };
+  },
+});
+
+// OK
 export const triggerLeadScoreUpdate = internalMutation({
   args: { leadId: v.id("leads") },
   handler: async (ctx, args) => {

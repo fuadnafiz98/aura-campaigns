@@ -95,8 +95,6 @@ export const handleEmailEvent = internalMutation({
     event: vEmailEvent,
   },
   handler: async (ctx, args) => {
-    console.log("Email event received:", args.id, args.event);
-
     const emailLog = await ctx.db
       .query("emailLogs")
       .withIndex("byResendId", (q) => q.eq("resendId", args.id))
@@ -119,6 +117,8 @@ export const handleEmailEvent = internalMutation({
     if (args.event.type.startsWith("email.")) {
       status = args.event.type.replace("email.", "");
     }
+
+    console.log("SSSSS", status);
 
     const updateData: any = {
       status: status,
@@ -145,12 +145,14 @@ export const handleEmailEvent = internalMutation({
     }
 
     await ctx.db.patch(emailLog._id, updateData);
+    console.log("SSSSS", emailLog);
 
     // Trigger lead scoring update for engagement events
     if (
       ["delivered", "opened", "clicked"].includes(status) &&
       emailLog.leadId
     ) {
+      console.log("will update the scoring");
       await ctx.scheduler.runAfter(
         0,
         internal.leadScoringWorkers.triggerLeadScoreUpdate,
@@ -207,6 +209,7 @@ export const _sendEmailFromCampaign = internalMutation({
     await ctx.db.patch(args.emailLogId, {
       updatedAt: now,
       resendId: resendId,
+      leadId: args.leadId,
       status: "queued",
     });
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "#/_generated/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -22,44 +22,19 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { Id } from "#/_generated/dataModel";
 
-const HotLeadsTab = () => {
-  const [selectedCampaign, setSelectedCampaign] = useState<string>("all");
-  const [open, setOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
-
-  // Get campaigns for the dropdown filter
-  const campaigns = useQuery(api.campaigns.getCampaigns, {
-    paginationOpts: { numItems: 100, cursor: null },
+const LeadActivityDisplay = ({
+  leadId,
+  campaignId,
+}: {
+  leadId: Id<"leads">;
+  campaignId?: Id<"campaigns">;
+}) => {
+  const activity = useQuery(api.leadScoring.getLeadLatestActivity, {
+    leadId,
+    ...(campaignId && { campaignId }),
   });
-
-  // Get the selected campaign ID
-  const selectedCampaignId =
-    selectedCampaign !== "all"
-      ? campaigns?.page?.find((c) => c.name === selectedCampaign)?._id
-      : undefined;
-
-  // Get hot leads using the lead scoring system
-  const hotLeadsData = useQuery(api.leadScoring.getHotLeads, {
-    limit: 50,
-    ...(selectedCampaignId && { campaignId: selectedCampaignId }),
-  });
-
-  // Transform the data to match the expected format
-  const hotLeads =
-    hotLeadsData?.map((lead) => ({
-      id: lead._id,
-      name: lead.name,
-      email: lead.email,
-      lastActivity: lead.lastEngagementAt || lead._creationTime,
-      lastEvent: lead.lastEngagementType || "delivered",
-      campaignName: lead.campaignName || "Unknown Campaign",
-      avatarUrl: null,
-      temperature: lead.temperature,
-      score: lead.score,
-      latestEmailSubject: lead.latestEmailSubject,
-      metrics: lead.metrics,
-    })) || [];
 
   const getEventConfig = (event: string) => {
     const eventMap: Record<
@@ -101,10 +76,123 @@ const HotLeadsTab = () => {
         badge:
           "bg-gray-500/10 text-gray-600 dark:bg-gray-500/20 dark:text-gray-400",
         icon: <Activity className="w-3.5 h-3.5" />,
-        label: event,
+        label: event || "No activity",
       }
     );
   };
+
+  const formatRelativeTime = (timestamp: number) => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (minutes < 1) return "Just now";
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
+  };
+
+  if (!activity) {
+    return (
+      <>
+        <div className="col-span-2">
+          <div className="animate-pulse bg-muted h-5 w-16 rounded"></div>
+        </div>
+        <div className="col-span-2">
+          <div className="animate-pulse bg-muted h-4 w-12 rounded"></div>
+        </div>
+        <div className="col-span-1">
+          <div className="animate-pulse bg-muted h-4 w-20 rounded"></div>
+        </div>
+      </>
+    );
+  }
+
+  if (!activity.hasActivity) {
+    return (
+      <>
+        <div className="col-span-2">
+          <Badge className="bg-gray-500/10 text-gray-600 dark:bg-gray-500/20 dark:text-gray-400 font-medium flex items-center gap-1.5 px-2 py-1">
+            <Activity className="w-3.5 h-3.5" />
+            <span className="text-xs">No activity</span>
+          </Badge>
+        </div>
+        <div className="col-span-2">
+          <p className="text-sm font-medium text-muted-foreground">-</p>
+        </div>
+        <div className="col-span-1">
+          <p className="text-sm font-medium text-muted-foreground">-</p>
+        </div>
+      </>
+    );
+  }
+
+  const eventConfig = getEventConfig(activity.latestActivityType || "");
+
+  return (
+    <>
+      <div className="col-span-2">
+        <Badge
+          className={cn(
+            "font-medium flex items-center gap-1.5 px-2 py-1",
+            eventConfig.badge,
+          )}
+        >
+          {eventConfig.icon}
+          <span className="text-xs">{eventConfig.label}</span>
+        </Badge>
+      </div>
+      <div className="col-span-2">
+        <p className="text-sm font-medium text-foreground">
+          {activity.latestActivityTime && activity.latestActivityTime > 0
+            ? formatRelativeTime(activity.latestActivityTime)
+            : "-"}
+        </p>
+      </div>
+      <div className="col-span-1">
+        <p className="text-sm font-medium text-foreground truncate">
+          {activity.campaignName || "-"}
+        </p>
+      </div>
+    </>
+  );
+};
+
+const HotLeadsTab = () => {
+  const [selectedCampaign, setSelectedCampaign] = useState<string>("all");
+  const [open, setOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+
+  // Get campaigns for the dropdown filter
+  const campaigns = useQuery(api.campaigns.getCampaigns, {
+    paginationOpts: { numItems: 100, cursor: null },
+  });
+
+  // Get the selected campaign ID
+  const selectedCampaignId =
+    selectedCampaign !== "all"
+      ? campaigns?.page?.find((c) => c.name === selectedCampaign)?._id
+      : undefined;
+
+  // Get hot leads using the lead scoring system
+  const hotLeadsData = useQuery(api.leadScoring.getHotLeads, {
+    limit: 50,
+    ...(selectedCampaignId && { campaignId: selectedCampaignId }),
+  });
+
+  // Transform the data to match the expected format
+  const hotLeads =
+    hotLeadsData?.map((lead) => ({
+      id: lead._id,
+      name: lead.name,
+      email: lead.email,
+      company: lead.company,
+      category: lead.category,
+      temperature: lead.temperature,
+      score: lead.score,
+    })) || [];
 
   const getTemperatureConfig = (temperature: string) => {
     const tempMap: Record<
@@ -143,19 +231,6 @@ const HotLeadsTab = () => {
         label: temperature,
       }
     );
-  };
-
-  const formatRelativeTime = (timestamp: number) => {
-    const now = Date.now();
-    const diff = now - timestamp;
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    return `${days}d ago`;
   };
 
   // Filter leads based on selected campaign (already handled in query)
@@ -265,12 +340,12 @@ const HotLeadsTab = () => {
         <CardContent className="p-0">
           {/* Table Header */}
           <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-border bg-muted/20 text-sm font-medium text-muted-foreground">
-            <div className="col-span-3">Name</div>
+            <div className="col-span-4">Name</div>
             <div className="col-span-1">Score</div>
             <div className="col-span-2">Temperature</div>
-            <div className="col-span-2">Campaign</div>
             <div className="col-span-2">Last Activity</div>
-            <div className="col-span-2">Last Activity Time</div>
+            <div className="col-span-2">Activity Time</div>
+            <div className="col-span-1">Campaign</div>
           </div>
 
           {/* Leads List */}
@@ -308,7 +383,6 @@ const HotLeadsTab = () => {
             ) : (
               // Leads data
               filteredLeads.map((lead) => {
-                const eventConfig = getEventConfig(lead.lastEvent);
                 const tempConfig = getTemperatureConfig(lead.temperature);
                 return (
                   <div
@@ -316,7 +390,7 @@ const HotLeadsTab = () => {
                     className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-muted/30 transition-colors group cursor-pointer items-center"
                   >
                     {/* Name and Email */}
-                    <div className="col-span-3 flex items-center space-x-3">
+                    <div className="col-span-4 flex items-center space-x-3">
                       <div className="w-8 h-8 bg-gradient-to-br from-foreground/15 to-background rounded-full flex items-center justify-center text-primary-foreground text-xs font-semibold flex-shrink-0">
                         {lead.name
                           .split(" ")
@@ -357,32 +431,11 @@ const HotLeadsTab = () => {
                       </Badge>
                     </div>
 
-                    {/* Campaign Name */}
-                    <div className="col-span-2">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {lead.campaignName}
-                      </p>
-                    </div>
-
-                    {/* Last Activity (Event) */}
-                    <div className="col-span-2">
-                      <Badge
-                        className={cn(
-                          "font-medium flex items-center gap-1.5 px-2 py-1",
-                          eventConfig.badge,
-                        )}
-                      >
-                        {eventConfig.icon}
-                        <span className="text-xs">{eventConfig.label}</span>
-                      </Badge>
-                    </div>
-
-                    {/* Last Activity Time */}
-                    <div className="col-span-2">
-                      <p className="text-sm font-medium text-foreground">
-                        {formatRelativeTime(lead.lastActivity)}
-                      </p>
-                    </div>
+                    {/* Latest Activity, Activity Time, and Campaign - Using the new component */}
+                    <LeadActivityDisplay
+                      leadId={lead.id}
+                      campaignId={selectedCampaignId}
+                    />
                   </div>
                 );
               })

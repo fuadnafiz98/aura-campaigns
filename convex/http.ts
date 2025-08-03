@@ -11,7 +11,7 @@ http.route({
   path: "/resend-webhook",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    console.log("HERE!");
+    console.log("HERE!", req);
     return await resend.handleResendEventWebhook(ctx, req);
   }),
 });

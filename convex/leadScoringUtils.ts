@@ -1,18 +1,33 @@
 // Shared scoring configuration and utility functions
 
 export const SCORING_CONFIG = {
-  points: { delivered: 1, opened: 3, clicked: 10 },
+  points: { delivered: 1, opened: 2, clicked: 5 },
   temperature: { hot: 50, warm: 20, cold: 0 },
-  decay: { dailyDecayRate: 0.02, maxDaysWithoutActivity: 30 },
+  decay: {
+    minuteDecayRate: 0.001,
+    dailyDecayRate: 0.05,
+    maxDaysWithoutActivity: 30,
+  },
 } as const;
 
 export function applyTimeDecay(
   rawScore: number,
   lastEngagementTimestamp: number,
+  useMinuteDecay: boolean = false,
 ): number {
   const now = Date.now();
-  const daysSinceLastActivity =
-    (now - lastEngagementTimestamp) / (24 * 60 * 60 * 1000);
+  const timeDiff = now - lastEngagementTimestamp;
+
+  if (useMinuteDecay) {
+    const minutesSinceLastActivity = timeDiff / (60 * 1000);
+    const decayFactor = Math.pow(
+      1 - SCORING_CONFIG.decay.minuteDecayRate,
+      minutesSinceLastActivity,
+    );
+    return rawScore * decayFactor;
+  }
+
+  const daysSinceLastActivity = timeDiff / (24 * 60 * 60 * 1000);
 
   if (daysSinceLastActivity > SCORING_CONFIG.decay.maxDaysWithoutActivity)
     return 0;
