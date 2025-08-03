@@ -194,6 +194,7 @@ export const getEmailLogsStats = query({
           stats.sent++;
           break;
         case "delivered":
+          stats.sent++;
           stats.delivered++;
           break;
         case "bounced":
@@ -203,11 +204,14 @@ export const getEmailLogsStats = query({
           stats.failed++;
           break;
         case "opened":
+          stats.sent++;
           stats.delivered++;
           stats.opened++;
           break;
         case "clicked":
+          stats.sent++;
           stats.delivered++;
+          stats.opened++;
           stats.clicked++;
           break;
         case "complained":

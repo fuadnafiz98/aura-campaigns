@@ -27,7 +27,10 @@ export const getLeadsCount = query({
     filterCategory: v.optional(v.string()),
   },
   handler: async (ctx, _args) => {
-    const queryBuilder = ctx.db.query("leads");
+    const userId = await getAuthUserId(ctx);
+    const queryBuilder = ctx.db
+      .query("leads")
+      .filter((q) => q.eq(q.field("imported_by"), userId));
 
     const allLeadsInFilter = await queryBuilder.collect();
     return allLeadsInFilter.length;

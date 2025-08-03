@@ -159,7 +159,7 @@ export default function AudienceDetailPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate("/audiences")}
+                onClick={() => navigate("/app/audiences")}
                 className="p-2 curosr-pointer"
               >
                 <ArrowLeft className="h-4 w-4" />

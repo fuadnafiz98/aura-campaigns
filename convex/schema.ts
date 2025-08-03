@@ -25,7 +25,35 @@ export default defineSchema({
     category: v.string(),
     imported_by: v.id("users"),
     imported_at: v.number(),
-  }).index("byEmail", ["email"]),
+  })
+    .index("byEmail", ["email"])
+    .index("byImporter", ["imported_by"])
+    .index("byEmailAndImporter", ["email", "imported_by"]),
+
+  // Lead scoring table - aggregated analytics and current score
+  leadScores: defineTable({
+    leadId: v.id("leads"),
+    hotScore: v.number(),
+    temperature: v.string(), // "hot" (50+), "warm" (20-49), "cold" (0-19)
+    lastCalculatedAt: v.number(),
+    calculatedBy: v.optional(v.id("users")),
+    // Engagement summary (aggregated from emailLogs)
+    totalEmailsSent: v.number(),
+    totalEmailsDelivered: v.number(),
+    totalEmailsOpened: v.number(),
+    totalEmailsClicked: v.number(),
+    lastEngagementAt: v.optional(v.number()),
+    lastEngagementType: v.optional(v.string()),
+    // Analytics metrics
+    openRate: v.number(), // Percentage of emails opened (0-100)
+    clickRate: v.number(), // Percentage of emails clicked (0-100)
+    engagementTrend: v.optional(v.string()), // "increasing", "decreasing", "stable"
+  })
+    .index("byLead", ["leadId"])
+    .index("byHotScore", ["hotScore"])
+    .index("byTemperature", ["temperature"])
+    .index("byLastEngagement", ["lastEngagementAt"])
+    .index("byEngagementTrend", ["engagementTrend"]),
 
   campaigns: defineTable({
     name: v.string(),
@@ -72,6 +100,20 @@ export default defineSchema({
     emailId: v.optional(v.id("emails")),
     leadId: v.optional(v.id("leads")),
     scheduledJobId: v.optional(v.string()), // ID of scheduled job
+    // Enhanced email engagement tracking
+    deliveredAt: v.optional(v.number()), // When email was delivered
+    openedAt: v.optional(v.number()), // When email was first opened
+    lastOpenedAt: v.optional(v.number()), // When email was last opened
+    openCount: v.optional(v.number()), // How many times opened
+    clickedAt: v.optional(v.number()), // When email link was first clicked
+    lastClickedAt: v.optional(v.number()), // When email link was last clicked
+    clickCount: v.optional(v.number()), // How many times clicked
+    repliedAt: v.optional(v.number()), // When lead replied to email
+    bouncedAt: v.optional(v.number()), // When email bounced
+    unsubscribedAt: v.optional(v.number()), // When lead unsubscribed
+    // Processing flags
+    processedForScoring: v.optional(v.boolean()), // Whether this log was processed for lead scoring
+    lastProcessedAt: v.optional(v.number()), // When it was last processed
   })
     .index("byResendId", ["resendId"])
     .index("byStatus", ["status"])
@@ -79,7 +121,13 @@ export default defineSchema({
     .index("byCreatedAt", ["createdAt"])
     .index("byCampaign", ["campaignId"])
     .index("byLead", ["leadId"])
-    .index("byScheduledJob", ["scheduledJobId"]),
+    .index("byScheduledJob", ["scheduledJobId"])
+    .index("byProcessedForScoring", ["processedForScoring"])
+    .index("byDeliveredAt", ["deliveredAt"])
+    .index("byOpenedAt", ["openedAt"])
+    .index("byClickedAt", ["clickedAt"])
+    .index("byLeadAndCampaign", ["leadId", "campaignId"])
+    .index("byCampaignEmail", ["campaignId", "emailId"]),
 
   audiences: defineTable({
     name: v.string(),

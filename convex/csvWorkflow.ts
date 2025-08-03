@@ -88,17 +88,17 @@ export const insertCSVBatch = internalMutation({
     const leadIds = [];
     const skippedEmails = [];
 
+    // Unique emails from the CSV Records
     const recordsByEmail = new Map();
     for (const record of args.records) {
       if (!recordsByEmail.has(record.email)) {
         recordsByEmail.set(record.email, record);
-      } else {
-        skippedEmails.push(record.email);
       }
     }
 
     const uniqueRecords = Array.from(recordsByEmail.values());
     const existingEmails = new Set();
+    const existingEmailIds: Set<Id<"leads">> = new Set();
 
     const CHUNK_SIZE = 50;
     for (let i = 0; i < uniqueRecords.length; i += CHUNK_SIZE) {
@@ -106,13 +106,18 @@ export const insertCSVBatch = internalMutation({
       const promises = chunk.map((record) =>
         ctx.db
           .query("leads")
-          .withIndex("byEmail", (q) => q.eq("email", record.email))
+          .withIndex("byEmailAndImporter", (q) =>
+            q.eq("email", record.email).eq("imported_by", args.userId),
+          )
           .first(),
       );
 
       const results = await Promise.all(promises);
       results.forEach((lead, index) => {
-        if (lead) existingEmails.add(chunk[index].email);
+        if (lead) {
+          existingEmails.add(chunk[index].email);
+          existingEmailIds.add(lead._id);
+        }
       });
     }
 
@@ -132,7 +137,7 @@ export const insertCSVBatch = internalMutation({
       }
     }
 
-    return { leadIds, skippedEmails };
+    return { leadIds, skippedEmailIds: Array.from(existingEmailIds) };
   },
 });
 

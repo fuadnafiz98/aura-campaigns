@@ -21,6 +21,7 @@ import {
   ChevronsUpDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 const HotLeadsTab = () => {
   const [selectedCampaign, setSelectedCampaign] = useState<string>("all");
@@ -32,42 +33,33 @@ const HotLeadsTab = () => {
     paginationOpts: { numItems: 100, cursor: null },
   });
 
-  // TODO: Get email logs with lead information for hot leads analysis
-  // const emailLogs = useQuery(api.emailLogs.listEmailLogs, { limit: 100 });
+  // Get the selected campaign ID
+  const selectedCampaignId =
+    selectedCampaign !== "all"
+      ? campaigns?.page?.find((c) => c.name === selectedCampaign)?._id
+      : undefined;
 
-  // Mock data for hot leads with the new structure - this will be replaced with actual data
-  const hotLeads = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      email: "sarah.j@techcorp.com",
-      lastActivity: Date.now() - 2 * 60 * 60 * 1000, // 2 hours ago
-      lastEvent: "clicked",
-      campaignName: "Product Launch 2024",
+  // Get hot leads using the lead scoring system
+  const hotLeadsData = useQuery(api.leadScoring.getHotLeads, {
+    limit: 50,
+    ...(selectedCampaignId && { campaignId: selectedCampaignId }),
+  });
+
+  // Transform the data to match the expected format
+  const hotLeads =
+    hotLeadsData?.map((lead) => ({
+      id: lead._id,
+      name: lead.name,
+      email: lead.email,
+      lastActivity: lead.lastEngagementAt || lead._creationTime,
+      lastEvent: lead.lastEngagementType || "delivered",
+      campaignName: lead.campaignName || "Unknown Campaign",
       avatarUrl: null,
-      temperature: "hot",
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      email: "m.chen@innovate.co",
-      lastActivity: Date.now() - 5 * 60 * 60 * 1000, // 5 hours ago
-      lastEvent: "opened",
-      campaignName: "Summer Sale Campaign",
-      avatarUrl: null,
-      temperature: "hot",
-    },
-    {
-      id: 3,
-      name: "Emily Rodriguez",
-      email: "emily@startup.io",
-      lastActivity: Date.now() - 24 * 60 * 60 * 1000, // 1 day ago
-      lastEvent: "opened",
-      campaignName: "Newsletter Q4",
-      avatarUrl: null,
-      temperature: "warm",
-    },
-  ];
+      temperature: lead.temperature,
+      score: lead.score,
+      latestEmailSubject: lead.latestEmailSubject,
+      metrics: lead.metrics,
+    })) || [];
 
   const getEventConfig = (event: string) => {
     const eventMap: Record<
@@ -166,11 +158,8 @@ const HotLeadsTab = () => {
     return `${days}d ago`;
   };
 
-  // Filter leads based on selected campaign
-  const filteredLeads =
-    selectedCampaign === "all"
-      ? hotLeads
-      : hotLeads.filter((lead) => lead.campaignName === selectedCampaign);
+  // Filter leads based on selected campaign (already handled in query)
+  const filteredLeads = hotLeads;
 
   // Filter campaigns based on search
   const filteredCampaigns =
@@ -273,112 +262,132 @@ const HotLeadsTab = () => {
 
       {/* Hot Leads List */}
       <Card className="bg-card border-border">
-        <CardHeader className="border-b border-border">
-          <CardTitle className="text-lg font-semibold text-foreground">
-            Priority Leads
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Leads with recent email engagement requiring immediate attention
-          </p>
-        </CardHeader>
         <CardContent className="p-0">
           {/* Table Header */}
           <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-border bg-muted/20 text-sm font-medium text-muted-foreground">
             <div className="col-span-3">Name</div>
+            <div className="col-span-1">Score</div>
             <div className="col-span-2">Temperature</div>
-            <div className="col-span-3">Campaign</div>
+            <div className="col-span-2">Campaign</div>
             <div className="col-span-2">Last Activity</div>
             <div className="col-span-2">Last Activity Time</div>
           </div>
 
           {/* Leads List */}
           <div className="divide-y divide-border">
-            {filteredLeads.map((lead) => {
-              const eventConfig = getEventConfig(lead.lastEvent);
-              const tempConfig = getTemperatureConfig(lead.temperature);
-              return (
-                <div
-                  key={lead.id}
-                  className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-muted/30 transition-colors group cursor-pointer items-center"
-                >
-                  {/* Name and Email */}
-                  <div className="col-span-3 flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-foreground/15 to-background rounded-full flex items-center justify-center text-primary-foreground text-xs font-semibold flex-shrink-0">
-                      {lead.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
+            {!hotLeadsData ? (
+              // Loading state
+              <div className="text-center py-12">
+                <div className="mx-auto w-12 h-12 bg-muted rounded-lg flex items-center justify-center mb-4">
+                  <Activity className="w-6 h-6 text-muted-foreground animate-pulse" />
+                </div>
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  Loading hot leads...
+                </h3>
+                <p className="text-muted-foreground">
+                  Analyzing email engagement data
+                </p>
+              </div>
+            ) : filteredLeads.length === 0 ? (
+              // Empty state
+              <div className="text-center py-12">
+                <div className="mx-auto w-12 h-12 bg-muted rounded-lg flex items-center justify-center mb-4">
+                  <Flame className="w-6 h-6 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  {selectedCampaign === "all"
+                    ? "No hot leads found"
+                    : "No leads found for this campaign"}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {selectedCampaign === "all"
+                    ? "Start by importing leads or creating new ones"
+                    : "Try selecting a different campaign or add new leads"}
+                </p>
+              </div>
+            ) : (
+              // Leads data
+              filteredLeads.map((lead) => {
+                const eventConfig = getEventConfig(lead.lastEvent);
+                const tempConfig = getTemperatureConfig(lead.temperature);
+                return (
+                  <div
+                    key={lead.id}
+                    className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-muted/30 transition-colors group cursor-pointer items-center"
+                  >
+                    {/* Name and Email */}
+                    <div className="col-span-3 flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-gradient-to-br from-foreground/15 to-background rounded-full flex items-center justify-center text-primary-foreground text-xs font-semibold flex-shrink-0">
+                        {lead.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </div>
+                      <Link to={`/app/leads/${lead.id}`}>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-semibold text-foreground truncate">
+                            {lead.name}
+                          </h3>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {lead.email}
+                          </p>
+                        </div>
+                      </Link>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-foreground truncate">
-                        {lead.name}
-                      </h3>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {lead.email}
+
+                    {/* Score */}
+                    <div className="col-span-1">
+                      <div className="flex items-center">
+                        <span className="text-sm font-bold text-foreground">
+                          {lead.score || 0}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Temperature */}
+                    <div className="col-span-2">
+                      <Badge
+                        className={cn(
+                          "font-medium flex items-center gap-1.5 px-2 py-1",
+                          tempConfig.badge,
+                        )}
+                      >
+                        {tempConfig.icon}
+                        <span className="text-xs">{tempConfig.label}</span>
+                      </Badge>
+                    </div>
+
+                    {/* Campaign Name */}
+                    <div className="col-span-2">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {lead.campaignName}
+                      </p>
+                    </div>
+
+                    {/* Last Activity (Event) */}
+                    <div className="col-span-2">
+                      <Badge
+                        className={cn(
+                          "font-medium flex items-center gap-1.5 px-2 py-1",
+                          eventConfig.badge,
+                        )}
+                      >
+                        {eventConfig.icon}
+                        <span className="text-xs">{eventConfig.label}</span>
+                      </Badge>
+                    </div>
+
+                    {/* Last Activity Time */}
+                    <div className="col-span-2">
+                      <p className="text-sm font-medium text-foreground">
+                        {formatRelativeTime(lead.lastActivity)}
                       </p>
                     </div>
                   </div>
-                  {/* Temperature */}
-                  <div className="col-span-2">
-                    <Badge
-                      className={cn(
-                        "font-medium flex items-center gap-1.5 px-2 py-1",
-                        tempConfig.badge,
-                      )}
-                    >
-                      {tempConfig.icon}
-                      <span className="text-xs">{tempConfig.label}</span>
-                    </Badge>
-                  </div>
-
-                  {/* Campaign Name */}
-                  <div className="col-span-3">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {lead.campaignName}
-                    </p>
-                  </div>
-
-                  {/* Last Activity (Event) */}
-                  <div className="col-span-2">
-                    <Badge
-                      className={cn(
-                        "font-medium flex items-center gap-1.5 px-2 py-1",
-                        eventConfig.badge,
-                      )}
-                    >
-                      {eventConfig.icon}
-                      <span className="text-xs">{eventConfig.label}</span>
-                    </Badge>
-                  </div>
-
-                  {/* Last Activity Time */}
-                  <div className="col-span-2">
-                    <p className="text-sm font-medium text-foreground">
-                      {formatRelativeTime(lead.lastActivity)}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
-
-          {filteredLeads.length === 0 && (
-            <div className="text-center py-12">
-              <div className="mx-auto w-12 h-12 bg-muted rounded-lg flex items-center justify-center mb-4">
-                <Flame className="w-6 h-6 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-medium text-foreground mb-2">
-                {selectedCampaign === "all"
-                  ? "No hot leads found"
-                  : "No leads found for this campaign"}
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                {selectedCampaign === "all"
-                  ? "Start by importing leads or creating new ones"
-                  : "Try selecting a different campaign or add new leads"}
-              </p>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>

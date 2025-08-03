@@ -5,7 +5,6 @@ import {
   internalQuery,
 } from "./_generated/server";
 import { internal } from "./_generated/api";
-import { getEmail } from "./emails";
 
 // Calculate delay in milliseconds
 function calculateDelayMs(delay: number, delayUnit: string): number {
@@ -209,6 +208,42 @@ export const sendScheduledCampaignEmail = internalMutation({
       await ctx.db.patch(args.emailLogId, {
         status: "sent",
       });
+
+      const pendingMails = await ctx.db
+        .query("emailLogs")
+        .withIndex("byCampaignEmail", (q) =>
+          q.eq("campaignId", args.campaignId).eq("emailId", email._id),
+        )
+        .filter((q) =>
+          q.or(
+            q.eq(q.field("status"), "scheduled"),
+            q.eq(q.field("status"), "pending"),
+          ),
+        )
+        .collect();
+
+      console.log("We have pending Mails", pendingMails.length);
+      if (pendingMails.length === 0) {
+        // we have send all the mails,
+        console.log("----------------- SEND ALL MAILS----------------");
+        await ctx.db.patch(email._id, {
+          status: "sent",
+        });
+      }
+
+      const campaignMails = await ctx.db
+        .query("emails")
+        .withIndex("byCampaign", (q) => q.eq("campaignId", args.campaignId))
+        .collect();
+      const sendCampaignMails = campaignMails.filter(
+        (c) => c.status === "sent",
+      );
+      if (campaignMails.length === sendCampaignMails.length) {
+        console.log("----------------- CAMPAIGN DONE ----------------");
+        await ctx.db.patch(args.campaignId, {
+          status: "completed",
+        });
+      }
     } catch (error) {
       console.error(`Error sending scheduled email:`, error);
       await ctx.db.patch(args.emailLogId, {
@@ -412,43 +447,43 @@ export const updateCampaignSchedulingStatus = internalMutation({
 });
 
 // Query to get campaign scheduling status using Convex's _scheduled_functions
-export const getCampaignSchedulingStatus = internalQuery({
-  args: {
-    campaignId: v.id("campaigns"),
-  },
-  handler: async (ctx, args) => {
-    const campaign = await ctx.db.get(args.campaignId);
-    if (!campaign?.scheduledJobIds) {
-      return { scheduled: 0, completed: 0, failed: 0, cancelled: 0 };
-    }
+// export const getCampaignSchedulingStatus = internalQuery({
+//   args: {
+//     campaignId: v.id("campaigns"),
+//   },
+//   handler: async (ctx, args) => {
+//     const campaign = await ctx.db.get(args.campaignId);
+//     if (!campaign?.scheduledJobIds) {
+//       return { scheduled: 0, completed: 0, failed: 0, cancelled: 0 };
+//     }
 
-    const stats = { scheduled: 0, completed: 0, failed: 0, cancelled: 0 };
+//     const stats = { scheduled: 0, completed: 0, failed: 0, cancelled: 0 };
 
-    for (const jobId of campaign.scheduledJobIds) {
-      try {
-        // Query the _scheduled_functions system table
-        const scheduledFunction = await ctx.db.system
-          .query("_scheduled_functions")
-          .filter((q) => q.eq(q.field("_id"), jobId))
-          .first();
+//     for (const jobId of campaign.scheduledJobIds) {
+//       try {
+//         // Query the _scheduled_functions system table
+//         const scheduledFunction = await ctx.db.system
+//           .query("_scheduled_functions")
+//           .filter((q) => q.eq(q.field("_id"), jobId))
+//           .first();
 
-        if (scheduledFunction) {
-          const state = scheduledFunction.state;
-          if (state.kind === "pending") {
-            stats.scheduled++;
-          } else if (state.kind === "success") {
-            stats.completed++;
-          } else if (state.kind === "failed") {
-            stats.failed++;
-          } else if (state.kind === "canceled") {
-            stats.cancelled++;
-          }
-        }
-      } catch (error) {
-        console.warn(`Failed to get status for job ${jobId}:`, error);
-      }
-    }
+//         if (scheduledFunction) {
+//           const state = scheduledFunction.state;
+//           if (state.kind === "pending") {
+//             stats.scheduled++;
+//           } else if (state.kind === "success") {
+//             stats.completed++;
+//           } else if (state.kind === "failed") {
+//             stats.failed++;
+//           } else if (state.kind === "canceled") {
+//             stats.cancelled++;
+//           }
+//         }
+//       } catch (error) {
+//         console.warn(`Failed to get status for job ${jobId}:`, error);
+//       }
+//     }
 
-    return stats;
-  },
-});
+//     return stats;
+//   },
+// });

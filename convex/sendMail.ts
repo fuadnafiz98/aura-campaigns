@@ -97,7 +97,6 @@ export const handleEmailEvent = internalMutation({
   handler: async (ctx, args) => {
     console.log("Email event received:", args.id, args.event);
 
-    // Find the email log
     const emailLog = await ctx.db
       .query("emailLogs")
       .withIndex("byResendId", (q) => q.eq("resendId", args.id))
@@ -108,7 +107,6 @@ export const handleEmailEvent = internalMutation({
       return;
     }
 
-    // Don't update if email is already in a final failure state
     const finalStates = ["bounced", "complained", "failed"];
     if (finalStates.includes(emailLog.status.toLowerCase())) {
       console.log(
@@ -117,7 +115,6 @@ export const handleEmailEvent = internalMutation({
       return;
     }
 
-    // Simple status mapping
     let status = args.event.type;
     if (args.event.type.startsWith("email.")) {
       status = args.event.type.replace("email.", "");
@@ -129,12 +126,40 @@ export const handleEmailEvent = internalMutation({
       updatedAt: Date.now(),
     };
 
-    // Add error message for failures
+    // Add engagement timestamps for scoring
+    const timestamp = Date.now();
+    if (status === "delivered") {
+      updateData.deliveredAt = timestamp;
+    } else if (status === "opened") {
+      if (!emailLog.openedAt) updateData.openedAt = timestamp;
+      updateData.lastOpenedAt = timestamp;
+      updateData.openCount = (emailLog.openCount || 0) + 1;
+    } else if (status === "clicked") {
+      if (!emailLog.clickedAt) updateData.clickedAt = timestamp;
+      updateData.lastClickedAt = timestamp;
+      updateData.clickCount = (emailLog.clickCount || 0) + 1;
+    }
+
     if (status === "failed" || status === "bounced") {
       updateData.errorMessage = `Email ${status}`;
     }
 
     await ctx.db.patch(emailLog._id, updateData);
+
+    // Trigger lead scoring update for engagement events
+    if (
+      ["delivered", "opened", "clicked"].includes(status) &&
+      emailLog.leadId
+    ) {
+      await ctx.scheduler.runAfter(
+        0,
+        internal.leadScoringWorkers.triggerLeadScoreUpdate,
+        {
+          leadId: emailLog.leadId,
+        },
+      );
+    }
+
     console.log(
       `Updated email log for ${args.id}: ${args.event.type} -> ${status}`,
     );
@@ -154,21 +179,18 @@ export const _sendEmailFromCampaign = internalMutation({
   handler: async (ctx, args) => {
     console.log("SENDING CAMPAIGN EMAIL TO:", args.to);
 
-    // Get the email content from the database
     const email = await ctx.db.get(args.emailId);
     if (!email) {
       throw new Error(`Email with ID ${args.emailId} not found`);
     }
 
-    // Get the lead for personalization
     const lead = await ctx.db.get(args.leadId);
     if (!lead) {
       throw new Error(`Lead with ID ${args.leadId} not found`);
     }
 
-    // Send email via Resend
     const resendId = await resend.sendEmail(ctx, {
-      from: "Aura Campaigns <campaigns@fuadnafiz98.com>",
+      from: "Aura Campaigns <inbox@fuadnafiz98.com>",
       to: args.to,
       replyTo: [],
       subject: email.subject,
@@ -188,36 +210,6 @@ export const _sendEmailFromCampaign = internalMutation({
       status: "queued",
     });
 
-    const pendingMails = await ctx.db
-      .query("emailLogs")
-      .withIndex("byCampaign", (q) => q.eq("campaignId", args.campaignId))
-      .filter((q) =>
-        q.or(
-          q.eq(q.field("status"), "scheduled"),
-          q.eq(q.field("status"), "pending"),
-        ),
-      )
-      .collect();
-
-    if (pendingMails.length === 0) {
-      // we have send all the mails,
-      await ctx.db.patch(args.emailId, {
-        status: "sent",
-      });
-    }
-
-    const campaignMails = await ctx.db
-      .query("emails")
-      .withIndex("byCampaign", (q) => q.eq("campaignId", args.campaignId))
-      .collect();
-
-    const sendCampaignMails = campaignMails.filter((c) => c.status === "sent");
-
-    if (campaignMails.length === sendCampaignMails.length) {
-      await ctx.db.patch(args.campaignId, {
-        status: "completed",
-      });
-    }
     return resendId;
   },
 });

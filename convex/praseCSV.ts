@@ -26,7 +26,6 @@ export const parseCSVData = internalAction({
       throw new Error("File not found in storage");
     }
 
-    console.log("start parsing");
     // Convert blob to text
     const text = await blob.text();
 
@@ -55,6 +54,7 @@ export const parseCSVData = internalAction({
     // Import data to database in batches
     const BATCH_SIZE = 100;
     const importedLeadIds = [];
+    const skippedEmails = [];
 
     for (let i = 0; i < validRecords.length; i += BATCH_SIZE) {
       const batch = validRecords.slice(i, i + BATCH_SIZE);
@@ -70,13 +70,17 @@ export const parseCSVData = internalAction({
       if (args.audienceId && batchResult.leadIds.length > 0) {
         importedLeadIds.push(...batchResult.leadIds);
       }
+      skippedEmails.push(...batchResult.skippedEmailIds);
     }
 
+    console.log("IMPORTED", importedLeadIds);
+    const allEmailIds = [...importedLeadIds, ...skippedEmails];
+    console.log("all", allEmailIds);
     // If audienceId is provided, add all imported leads to the audience
-    if (args.audienceId && importedLeadIds.length > 0) {
+    if (args.audienceId && allEmailIds.length > 0) {
       await ctx.runMutation(internal.audiences.addLeadsToAudience, {
         audienceId: args.audienceId,
-        leadIds: importedLeadIds,
+        leadIds: allEmailIds,
         userId: args.userId,
       });
     }

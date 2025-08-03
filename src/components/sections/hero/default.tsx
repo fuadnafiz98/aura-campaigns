@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from "lucide-react";
+import { ArrowRightIcon, Youtube } from "lucide-react";
 import { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -10,6 +10,7 @@ import Glow from "../../ui/glow";
 import { Mockup, MockupFrame } from "../../ui/mockup";
 import Screenshot from "../../ui/screenshot";
 import { Section } from "../../ui/section";
+import YouTube from "@/components/logos/youtube";
 
 interface HeroButtonProps {
   href: string;
@@ -60,9 +61,9 @@ export default function Hero({
     },
     {
       href: "https://github.com/fuadnafiz98",
-      text: "View on GitHub",
-      variant: "glow",
-      icon: <Github className="mr-2 size-4" />,
+      text: "Watch Demo on Youtube",
+      variant: "outline",
+      icon: <YouTube />,
     },
   ],
   className,
@@ -91,6 +92,7 @@ export default function Hero({
                   variant={button.variant || "default"}
                   size="lg"
                   asChild
+                  className="hover:bg-secondary h-10"
                 >
                   <a href={button.href}>
                     {button.icon}

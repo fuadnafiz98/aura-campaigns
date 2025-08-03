@@ -78,6 +78,38 @@ export default function Navbar({
   ],
   className,
 }: NavbarProps) {
+  // Check for auth info in localStorage
+  const checkAuth = () => {
+    if (typeof window === "undefined") return false;
+
+    // Check for Convex auth tokens in localStorage (look for items starting with these prefixes)
+    const keys = Object.keys(localStorage);
+    return keys.some(
+      (key) =>
+        key.startsWith("__convexAuthJWT") ||
+        key.startsWith("__convexAuthRefreshToken"),
+    );
+  };
+
+  const isAuthenticated = checkAuth();
+
+  // Update actions based on auth state
+  const dynamicActions = isAuthenticated
+    ? [
+        {
+          text: "Sign in",
+          href: "/login",
+          isButton: false,
+        },
+        {
+          text: "Go to Dashboard",
+          href: "/app/dashboard",
+          isButton: true,
+          variant: "default" as const,
+        },
+      ]
+    : actions;
+
   return (
     <header className={cn("sticky top-0 z-50 -mb-4 px-4 pb-4", className)}>
       <div className="fade-bottom bg-background/15 absolute left-0 h-24 w-full backdrop-blur-lg"></div>
@@ -93,7 +125,7 @@ export default function Navbar({
             <Navigation />
           </NavbarLeft>
           <NavbarRight>
-            {actions.map((action, index) => {
+            {dynamicActions.map((action, index) => {
               const isInternal = action.href.startsWith("/");
               if (action.isButton) {
                 return (

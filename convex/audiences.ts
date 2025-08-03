@@ -380,6 +380,8 @@ export const addLeadsToAudience = internalMutation({
       throw new Error("Audience not found or unauthorized");
     }
 
+    console.log("STARTING AUD");
+
     const now = Date.now();
     for (const leadId of args.leadIds) {
       // Check if relationship already exists
