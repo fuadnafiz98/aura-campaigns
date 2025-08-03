@@ -33,7 +33,7 @@ const EmailCampaignFlow = React.lazy(() => import("./pages/campaigns/show"));
 const AnalyticsPage = React.lazy(() => import("./pages/analytics"));
 
 // Dashboard
-const EmailLogsPage = React.lazy(() => import("./pages/email-logs"));
+const Dashboard = React.lazy(() => import("./pages/dashboard"));
 
 // Audiences
 const AudiencePage = React.lazy(() => import("./pages/audiences"));
@@ -58,7 +58,7 @@ const router = createBrowserRouter(
               </AuthLoading>
               <Authenticated>
                 <WithSideBar label="Dashboard">
-                  <EmailLogsPage />
+                  <Dashboard />
                 </WithSideBar>
               </Authenticated>
               <Unauthenticated>
@@ -79,7 +79,7 @@ const router = createBrowserRouter(
               </AuthLoading>
               <Authenticated>
                 <WithSideBar label="Dashboard">
-                  <EmailLogsPage />
+                  <Dashboard />
                 </WithSideBar>
               </Authenticated>
               <Unauthenticated>
