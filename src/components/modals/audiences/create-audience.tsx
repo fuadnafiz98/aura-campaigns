@@ -35,7 +35,9 @@ export const CreateAudienceModal = ({
   const [loading, setLoading] = useState(false);
 
   const createAudience = useMutation(api.audiences.createAudience);
-  const addLeadsToAudience = useMutation(api.audiences.addLeadsToAudiencePublic);
+  const addLeadsToAudience = useMutation(
+    api.audiences.addLeadsToAudiencePublic,
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,8 +60,10 @@ export const CreateAudienceModal = ({
           audienceId,
           leadIds,
         });
-        
-        toast.success(`Audience created successfully with ${result.addedCount} leads added`);
+
+        toast.success(
+          `Audience created successfully with ${result.addedCount} leads added`,
+        );
       } else {
         toast.success("Audience created successfully");
       }
@@ -67,7 +71,7 @@ export const CreateAudienceModal = ({
       setName("");
       setDescription("");
       onOpenChange(false);
-      
+
       // Call onSuccess callback if provided
       if (onSuccess) {
         onSuccess();
@@ -86,10 +90,9 @@ export const CreateAudienceModal = ({
           <DialogHeader>
             <DialogTitle>Create New Audience</DialogTitle>
             <DialogDescription>
-              {leadIds && leadIds.length > 0 
+              {leadIds && leadIds.length > 0
                 ? `Create a new audience group and add ${leadIds.length} selected leads to it.`
-                : "Create a new audience group to organize your leads."
-              }
+                : "Create a new audience group to organize your leads."}
             </DialogDescription>
           </DialogHeader>
 
