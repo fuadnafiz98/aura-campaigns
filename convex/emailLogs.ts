@@ -310,6 +310,61 @@ export const getCampaignEmailLogs = query({
   },
 });
 
+// Get email logs for a specific lead
+export const getLeadEmailLogs = query({
+  args: {
+    leadId: v.id("leads"),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+
+    const query = ctx.db
+      .query("emailLogs")
+      .withIndex("byLead", (q) => q.eq("leadId", args.leadId))
+      .filter((q) => q.eq(q.field("sentBy"), userId))
+      .order("desc");
+
+    let results;
+    if (args.limit) {
+      results = await query.take(args.limit);
+    } else {
+      results = await query.collect();
+    }
+
+    // Get additional details for each log (campaign and email info)
+    const logsWithDetails = await Promise.all(
+      results.map(async (log) => {
+        let campaign = null;
+        let email = null;
+
+        if (log.campaignId) {
+          campaign = await ctx.db.get(log.campaignId);
+        }
+
+        if (log.emailId) {
+          email = await ctx.db.get(log.emailId);
+        }
+
+        return {
+          ...log,
+          campaign: campaign ? { name: campaign.name } : null,
+          email: email
+            ? {
+                subject: email.subject,
+                delay: email.delay,
+                delayUnit: email.delayUnit,
+              }
+            : null,
+        };
+      }),
+    );
+
+    return logsWithDetails.sort((a, b) => b.updatedAt - a.updatedAt);
+  },
+});
+
 // Get campaign email statistics
 export const getCampaignEmailStats = query({
   args: {

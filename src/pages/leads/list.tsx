@@ -30,8 +30,9 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Upload, ArrowUpDown, Eye } from "lucide-react";
+import { Upload, ArrowUpDown, Eye, Users } from "lucide-react";
 import { UploadLeadsModal } from "@/components/modals/import-leads";
+import { CreateAudienceModal } from "@/components/modals/audiences/create-audience";
 
 // Define the Lead type based on your Convex document
 type Lead = Doc<"leads">;
@@ -39,9 +40,11 @@ type Lead = Doc<"leads">;
 export const LeadsPage = () => {
   const navigate = useNavigate();
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isCreateAudienceModalOpen, setIsCreateAudienceModalOpen] =
+    useState(false);
   const [selectedLeads, setSelectedLeads] = useState<Id<"leads">[]>([]);
   const [sortBy, setSortBy] = useState("name");
-  const [filterCategory, setFilterCategory] = useState("all"); // Re-added for filtering
+  const [filterCategory, _setFilterCategory] = useState("all"); // Re-added for filtering
 
   const {
     results: leads,
@@ -101,10 +104,19 @@ export const LeadsPage = () => {
           {/* Controls */}
           <div className="flex items-center gap-2">
             {selectedCount > 0 && (
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
                   {selectedCount} selected
                 </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setIsCreateAudienceModalOpen(true)}
+                  className="h-8 text-xs bg-primary hover:bg-primary/80 border-border cursor-pointer"
+                >
+                  <Users className="w-3 h-3 mr-1" />
+                  New Audience
+                </Button>
                 {/* <Button
                   size="sm"
                   variant="outline"
@@ -251,6 +263,13 @@ export const LeadsPage = () => {
       <UploadLeadsModal
         open={isImportModalOpen}
         onOpenChange={setIsImportModalOpen}
+      />
+
+      <CreateAudienceModal
+        open={isCreateAudienceModalOpen}
+        onOpenChange={setIsCreateAudienceModalOpen}
+        leadIds={selectedLeads}
+        onSuccess={() => setSelectedLeads([])}
       />
     </Card>
   );

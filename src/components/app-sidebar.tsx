@@ -24,7 +24,7 @@ interface IconHandle {
   stopAnimation: () => void;
 }
 
-export const data = {
+const data = {
   navMain: [
     {
       items: [
@@ -39,8 +39,8 @@ export const data = {
           icon: ChartSplineIcon,
         },
         { title: "Audiences", url: "/app/audiences", icon: RadioIcon },
-        { title: "Leads Database", url: "/app/leads", icon: UsersIcon },
         { title: "Campaigns", url: "/app/campaigns", icon: PartyPopperIcon },
+        { title: "Leads Database", url: "/app/leads", icon: UsersIcon },
       ],
     },
   ],

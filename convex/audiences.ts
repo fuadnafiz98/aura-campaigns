@@ -401,3 +401,44 @@ export const addLeadsToAudience = internalMutation({
     }
   },
 });
+
+export const addLeadsToAudiencePublic = mutation({
+  args: {
+    audienceId: v.id("audiences"),
+    leadIds: v.array(v.id("leads")),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+
+    const audience = await ctx.db.get(args.audienceId);
+    if (!audience || audience.createdBy !== userId) {
+      throw new Error("Audience not found or unauthorized");
+    }
+
+    const now = Date.now();
+    let addedCount = 0;
+    
+    for (const leadId of args.leadIds) {
+      // Check if relationship already exists
+      const existingRelation = await ctx.db
+        .query("audienceLeads")
+        .withIndex("byAudienceLead", (q) =>
+          q.eq("audienceId", args.audienceId).eq("leadId", leadId),
+        )
+        .first();
+
+      if (!existingRelation) {
+        await ctx.db.insert("audienceLeads", {
+          audienceId: args.audienceId,
+          leadId,
+          addedAt: now,
+          addedBy: userId,
+        });
+        addedCount++;
+      }
+    }
+
+    return { addedCount, totalRequested: args.leadIds.length };
+  },
+});

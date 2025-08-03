@@ -78,6 +78,7 @@ export default defineSchema({
     .index("byUser", ["sentBy"])
     .index("byCreatedAt", ["createdAt"])
     .index("byCampaign", ["campaignId"])
+    .index("byLead", ["leadId"])
     .index("byScheduledJob", ["scheduledJobId"]),
 
   audiences: defineTable({
