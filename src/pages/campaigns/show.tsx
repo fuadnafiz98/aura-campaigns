@@ -469,7 +469,9 @@ export default function EmailCampaignFlow() {
                   <Button
                     onClick={handleAddEmail}
                     disabled={
-                      loading || (campaign && campaign.status === "completed")
+                      loading ||
+                      (campaign && campaign.status === "completed") ||
+                      campaign.status === "active"
                     }
                     className="cursor-pointer bg-primary hover:bg-primary/80 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/30"
                   >
