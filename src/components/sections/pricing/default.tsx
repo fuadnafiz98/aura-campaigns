@@ -33,7 +33,7 @@ export default function Pricing({
         "Email support",
       ],
       variant: "default",
-      className: "hidden lg:flex",
+      className: "lg:flex",
     },
     {
       name: "Pro",
