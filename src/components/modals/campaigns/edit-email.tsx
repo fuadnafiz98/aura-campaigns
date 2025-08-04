@@ -48,6 +48,7 @@ export const EmailEditDialog = ({
   isOpen,
   onOpenChange,
 }: EmailEditDialogProps) => {
+  console.log("ID", id);
   const email = useQuery(api.emails.getEmail, { id });
   const updateEmail = useMutation(api.emails.updateEmail);
   const { register, control, handleSubmit, getValues, setValue } =

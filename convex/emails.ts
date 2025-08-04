@@ -37,7 +37,7 @@ export const getEmail = query({
   },
   handler: async (ctx, args) => {
     const email = await ctx.db.get(args.id);
-    if (!email) throw new Error("Email not found");
+    if (!email) return;
     return email;
   },
 });
