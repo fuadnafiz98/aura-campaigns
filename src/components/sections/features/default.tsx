@@ -1,4 +1,17 @@
-import { GitBranch, Mail, Users, BarChart3, Clock, Zap } from "lucide-react";
+import {
+  GitBranch,
+  Mail,
+  Users,
+  BarChart3,
+  Clock,
+  Zap,
+  WandSparkles,
+  BookUser,
+  TextCursorInput,
+  ChartSpline,
+  CalendarSync,
+  ShieldCheckIcon,
+} from "lucide-react";
 
 interface FeatureItem {
   icon: React.ComponentType<{ className?: string }>;
@@ -8,37 +21,37 @@ interface FeatureItem {
 
 const features: FeatureItem[] = [
   {
-    icon: GitBranch,
+    icon: WandSparkles,
     title: "Visual Campaign Builder",
     description:
       "Drag-and-drop email sequence creation with timeline view and smart scheduling",
   },
   {
-    icon: Mail,
+    icon: TextCursorInput,
     title: "Advanced Email Management",
     description:
-      "Rich text editor, live preview, and template management for professional emails",
+      "Rich text editor, live preview and test emails for professional emails",
   },
   {
-    icon: Users,
+    icon: BookUser,
     title: "Smart Lead Management",
     description:
       "Comprehensive lead database with CSV import and audience segmentation tools",
   },
   {
-    icon: BarChart3,
+    icon: ChartSpline,
     title: "Real-Time Analytics",
     description:
       "Track delivery status, engagement metrics, and campaign performance insights",
   },
   {
-    icon: Clock,
+    icon: CalendarSync,
     title: "Intelligent Automation",
     description:
       "Time-based sequences with automated lead distribution and background processing",
   },
   {
-    icon: Zap,
+    icon: ShieldCheckIcon,
     title: "Professional Delivery",
     description:
       "Integrated with Resend for reliable delivery and enterprise-grade performance",

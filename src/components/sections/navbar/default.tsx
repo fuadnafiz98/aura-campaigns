@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/navbar";
 import Navigation from "../../ui/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "../../ui/sheet";
+import Plane from "@/components/logos/plane";
+import { loginRoute } from "@/constants";
 
 interface NavbarLink {
   text: string;
@@ -60,18 +62,19 @@ export default function Navbar({
   homeUrl = "/",
   mobileLinks = [
     { text: "Features", href: "#features" },
+    { text: "Tools", href: "#tools" },
     { text: "Pricing", href: "#pricing" },
     { text: "FAQ", href: "#faq" },
   ],
   actions = [
     {
       text: "Sign in",
-      href: "/login",
+      href: loginRoute,
       isButton: false,
     },
     {
       text: "Sign Up Free",
-      href: "/login",
+      href: loginRoute,
       isButton: true,
       variant: "default",
     },
@@ -98,7 +101,7 @@ export default function Navbar({
     ? [
         {
           text: "Sign in",
-          href: "/login",
+          href: loginRoute,
           isButton: false,
         },
         {
@@ -115,13 +118,16 @@ export default function Navbar({
       <div className="fade-bottom bg-background/15 absolute left-0 h-24 w-full backdrop-blur-lg"></div>
       <div className="max-w-container relative mx-auto">
         <NavbarComponent>
-          <NavbarLeft>
-            <Link
-              to={homeUrl}
-              className="flex items-center gap-2 text-xl font-bold"
-            >
-              {name}
-            </Link>
+          <NavbarLeft className="flex space-x-0">
+            <div className="flex space-x-1">
+              <Plane />
+              <Link
+                to={homeUrl}
+                className="flex items-center gap-2 text-xl font-bold"
+              >
+                {name}
+              </Link>
+            </div>
             <Navigation />
           </NavbarLeft>
           <NavbarRight>

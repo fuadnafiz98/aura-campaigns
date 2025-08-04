@@ -132,7 +132,8 @@ export function PricingColumn({
         <ul className="flex flex-col gap-2">
           {features.map((feature) => (
             <li key={feature} className="flex items-center gap-2 text-sm">
-              <CircleCheckBig className="text-muted-foreground size-4 shrink-0" />
+              {/* <CircleCheckBig className="text-muted-foreground size-4 shrink-0" /> */}
+              <CircleCheckBig className="text-brand size-4 shrink-0" />
               {feature}
             </li>
           ))}

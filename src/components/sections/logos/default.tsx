@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 
-import Figma from "../../logos/figma";
 import React from "../../logos/react";
 import ShadcnUi from "../../logos/shadcn-ui";
 import Tailwind from "../../logos/tailwind";
@@ -21,40 +20,26 @@ interface LogosProps {
 export default function Logos({
   title = "Built with industry-standard tools and best practices",
   badge = (
-    <Badge variant="outline" className="border-brand/30 text-brand">
+    <Badge
+      variant="outline"
+      className="border-brand/30 border-2 text-primary text-sm"
+    >
       Last updated: 04-07-2025
     </Badge>
   ),
   logos = [
-    <Logo key="convex" image={Convex} name="Convex" />,
-    <Logo key="resend" image={Resend} name="Resend" />,
+    <Logo key="convex" image={Convex} name="Convex" badge="Featured" />,
+    <Logo key="resend" image={Resend} name="Resend" badge="Featured" />,
 
-    <Logo key="react" image={React} name="React" version="19.0.0" />,
-    <Logo
-      key="typescript"
-      image={TypeScript}
-      name="TypeScript"
-      version="5.6.3"
-    />,
-    <Logo
-      key="shadcn"
-      image={ShadcnUi}
-      name="Shadcn/ui"
-      version="2.4.0"
-      badge="New"
-    />,
-    <Logo
-      key="tailwind"
-      image={Tailwind}
-      name="Tailwind"
-      version="4.0"
-      badge="New"
-    />,
+    <Logo key="react" image={React} name="React" version="19.1.1" />,
+    <Logo key="typescript" image={TypeScript} name="TypeScript" />,
+    <Logo key="shadcn" image={ShadcnUi} name="Shadcn/ui" />,
+    <Logo key="tailwind" image={Tailwind} name="Tailwind" />,
   ],
   className,
 }: LogosProps) {
   return (
-    <Section className={className}>
+    <Section className={className} id="tools">
       <div className="max-w-container mx-auto flex flex-col items-center gap-8 text-center">
         <div className="flex flex-col items-center gap-6">
           {badge !== false && badge}

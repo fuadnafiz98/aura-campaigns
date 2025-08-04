@@ -7,6 +7,13 @@ import {
   Zap,
   GitBranch,
   ChartBarBigIcon,
+  Flame,
+  Activity,
+  Check,
+  Send,
+  Shield,
+  ChartSpline,
+  MailCheckIcon,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -89,50 +96,204 @@ function CampaignBuilderVisual() {
 }
 
 function AnalyticsVisual() {
+  const statusData = [
+    {
+      label: "Sent",
+      value: 412,
+      color: "bg-blue-500",
+      progress: 85,
+    },
+    {
+      label: "Delivered",
+      value: 324,
+      color: "bg-emerald-500",
+      progress: 78.5,
+    },
+    {
+      label: "Failed",
+      value: 8,
+      color: "bg-red-500",
+      progress: 1.9,
+    },
+    {
+      label: "Bounced",
+      value: 21,
+      color: "bg-orange-500",
+      progress: 5.1,
+    },
+    {
+      label: "Pending",
+      value: 59,
+      color: "bg-amber-500",
+      progress: 14.3,
+    },
+  ];
+
   return (
     <div className="min-h-[240px] w-full relative p-4">
       <div className="relative h-full w-full max-w-md mx-auto">
         <Card className="relative min-h-[240px] glass-1 border-border/50">
-          <div className="p-6 space-y-4">
-            <div className="flex items-center gap-2 mb-4">
-              <BarChart3 className="w-5 h-5 text-primary" />
-              <span className="text-sm font-medium">Campaign Analytics</span>
+          <div className="p-4 space-y-3">
+            <div className="flex items-center gap-2 mb-3">
+              <ChartSpline className="w-4 h-4 text-primary" />
+              <span className="text-xs font-medium">Status Overview</span>
             </div>
             <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Open Rate</span>
-                <span className="text-sm font-medium text-brand">24.5%</span>
-              </div>
-              <div className="w-full bg-muted rounded-full h-2">
-                <div
-                  className="bg-brand h-2 rounded-full"
-                  style={{ width: "24.5%" }}
-                ></div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">
-                  Click Rate
-                </span>
-                <span className="text-sm font-medium text-brand">12.3%</span>
-              </div>
-              <div className="w-full bg-muted rounded-full h-2">
-                <div
-                  className="bg-brand h-2 rounded-full"
-                  style={{ width: "12.3%" }}
-                ></div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">
-                  Conversion
-                </span>
-                <span className="text-sm font-medium text-brand">5.2%</span>
-              </div>
-              <div className="w-full bg-muted rounded-full h-2">
-                <div
-                  className="bg-brand h-2 rounded-full"
-                  style={{ width: "5.2%" }}
-                ></div>
-              </div>
+              {statusData.map((item) => (
+                <div key={item.label} className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 ${item.color} rounded-full`} />
+                      <span className="text-xs text-muted-foreground">
+                        {item.label}
+                      </span>
+                    </div>
+                    <span className="text-xs font-medium text-foreground">
+                      {item.value}
+                    </span>
+                  </div>
+                  <div className="w-full bg-muted/50 rounded-full h-1.5">
+                    <div
+                      className={`${item.color} h-1.5 rounded-full transition-all duration-700 ease-out`}
+                      style={{ width: `${item.progress}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function HotLeadsVisual() {
+  const hotLeads = [
+    {
+      name: "Sarah Chen",
+      email: "sarah@techcorp.com",
+      score: 92,
+      temperature: "hot",
+      activity: "Clicked",
+      time: "2m ago",
+    },
+    {
+      name: "Mike Johnson",
+      email: "mike@startup.io",
+      score: 87,
+      temperature: "hot",
+      activity: "Opened",
+      time: "5m ago",
+    },
+    {
+      name: "Lisa Wang",
+      email: "lisa@growth.co",
+      score: 84,
+      temperature: "warm",
+      activity: "Clicked",
+      time: "1h ago",
+    },
+  ];
+
+  const getTemperatureConfig = (temperature: string) => {
+    const tempMap: Record<string, { color: string; icon: React.ReactNode }> = {
+      hot: {
+        color: "bg-red-500/10 text-red-600 border-red-500/20",
+        icon: <Flame className="w-3 h-3" />,
+      },
+      warm: {
+        color: "bg-orange-500/10 text-orange-600 border-orange-500/20",
+        icon: <Activity className="w-3 h-3" />,
+      },
+    };
+    return tempMap[temperature] || tempMap.warm;
+  };
+
+  const getActivityConfig = (activity: string) => {
+    const activityMap: Record<string, { color: string }> = {
+      Clicked: { color: "bg-purple-500/10 text-purple-600" },
+      Opened: { color: "bg-cyan-500/10 text-cyan-600" },
+      Delivered: { color: "bg-emerald-500/10 text-emerald-600" },
+    };
+    return activityMap[activity] || activityMap.Delivered;
+  };
+
+  return (
+    <div className="min-h-[280px] w-full relative p-4">
+      <div className="relative h-full w-full">
+        <Card className="relative min-h-[280px] glass-1 border-border/50">
+          <div className="pt-2 px-4 pb-4 space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Flame className="w-4 h-4 text-red-500" />
+              <span className="text-sm font-medium">Hot Leads</span>
+            </div>
+
+            {/* Table Header */}
+            <div className="grid grid-cols-12 gap-2 px-2 py-1 text-xs font-medium text-muted-foreground border-b border-border/50">
+              <div className="col-span-5">Name</div>
+              <div className="col-span-2">Score</div>
+              <div className="col-span-3">Status</div>
+              <div className="col-span-2">Activity</div>
+            </div>
+
+            {/* Lead Rows */}
+            <div className="space-y-2">
+              {hotLeads.map((lead, index) => {
+                const tempConfig = getTemperatureConfig(lead.temperature);
+                const activityConfig = getActivityConfig(lead.activity);
+
+                return (
+                  <div
+                    key={index}
+                    className="grid grid-cols-12 gap-2 px-2 py-2 hover:bg-muted/30 rounded-lg transition-colors text-xs"
+                  >
+                    {/* Name & Email */}
+                    <div className="col-span-5 flex items-center gap-2">
+                      <div className="w-6 h-6 bg-gradient-to-br from-primary/20 to-background rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                        {lead.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium text-foreground truncate">
+                          {lead.name}
+                        </div>
+                        <div className="text-muted-foreground truncate text-xs">
+                          {lead.email}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Score */}
+                    <div className="col-span-2 flex items-center">
+                      <span className="font-bold text-foreground">
+                        {lead.score}
+                      </span>
+                    </div>
+
+                    {/* Temperature */}
+                    <div className="col-span-3 flex items-center">
+                      <div
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium ${tempConfig.color}`}
+                      >
+                        {tempConfig.icon}
+                        <span className="capitalize">{lead.temperature}</span>
+                      </div>
+                    </div>
+
+                    {/* Activity */}
+                    <div className="col-span-2 flex items-center">
+                      <div
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${activityConfig.color}`}
+                      >
+                        {lead.activity}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </Card>
@@ -143,26 +304,27 @@ function AnalyticsVisual() {
 
 function AutomationVisual() {
   return (
-    <div className="min-h-[200px] w-full flex items-center justify-center">
+    <div className="min-h-[240px] w-full flex items-center justify-center">
       <div className="relative flex items-center gap-8">
-        <div className="relative">
-          <div className="w-16 h-16 rounded-full border-2 border-primary/30 bg-background/50 backdrop-blur-sm flex items-center justify-center">
-            <Mail className="w-6 h-6 text-primary" />
-          </div>
+        {/* Email */}
+        <div className="w-16 h-16 rounded-full border-2 border-primary/30 bg-background/50 backdrop-blur-sm flex items-center justify-center">
+          <Mail className="w-6 h-6 text-primary" />
         </div>
+
+        {/* Automation Center */}
         <div className="relative">
-          <div className="absolute inset-0 bg-brand/30 rounded-full blur-2xl scale-150" />
+          <div className="absolute inset-0 bg-brand/20 rounded-full blur-xl" />
           <div className="relative w-20 h-20 rounded-full border-2 border-brand/50 bg-background/50 backdrop-blur-sm flex items-center justify-center">
-            <div className="w-16 h-16 rounded-full border border-brand/30 bg-brand/10 flex items-center justify-center">
-              <Zap className="w-8 h-8 text-brand" />
-            </div>
+            <Zap className="w-8 h-8 text-brand" />
           </div>
         </div>
-        <div className="relative">
-          <div className="w-16 h-16 rounded-full border-2 border-primary/30 bg-background/50 backdrop-blur-sm flex items-center justify-center">
-            <Target className="w-6 h-6 text-primary" />
-          </div>
+
+        {/* Target */}
+        <div className="w-16 h-16 rounded-full border-2 border-primary/30 bg-background/50 backdrop-blur-sm flex items-center justify-center">
+          <Target className="w-6 h-6 text-primary" />
         </div>
+
+        {/* Connection Line */}
         <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-brand/30 to-transparent -translate-y-1/2" />
       </div>
     </div>
@@ -170,18 +332,115 @@ function AutomationVisual() {
 }
 
 function DeliveryVisual() {
+  const deliverySteps = [
+    { label: "Composed", icon: <Mail className="w-3 h-3" />, completed: true },
+    {
+      label: "Validated",
+      icon: <Shield className="w-3 h-3" />,
+      completed: true,
+    },
+    { label: "Sent", icon: <Send className="w-3 h-3" />, completed: true },
+    {
+      label: "Delivered",
+      icon: <Check className="w-3 h-3" />,
+      completed: false,
+    },
+  ];
+
   return (
-    <div className="min-h-[200px] w-full py-8 flex items-center justify-center">
-      <div className="relative">
-        <div className="w-32 h-32 rounded-full border-2 border-brand/30 relative overflow-hidden glass-1">
-          <div className="absolute inset-0 bg-gradient-to-br from-brand/10 to-transparent" />
-          <div className="absolute top-1/2 left-0 w-full h-px bg-brand/40" />
-          <div className="absolute top-0 left-1/2 w-px h-full bg-brand/40" />
-          <div className="absolute inset-4 rounded-full border border-brand/20" />
-          <div className="absolute inset-8 rounded-full border border-brand/10" />
-          <Mail className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 text-brand" />
+    <div className="min-h-[240px] w-full py-8 flex items-center justify-center">
+      <div className="relative w-full max-w-sm">
+        {/* Central Delivery Hub */}
+        <div className="flex items-center justify-center mb-6">
+          <div className="relative">
+            {/* Subtle Glow */}
+            <div className="absolute inset-0 bg-brand/5 rounded-full blur-lg scale-150" />
+
+            {/* Main Hub Circle */}
+            <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-card/80 to-card/40 border border-brand/20 flex items-center justify-center shadow-md backdrop-blur-sm">
+              {/* Inner Content */}
+              <div className="relative flex items-center justify-center">
+                <MailCheckIcon className="w-7 h-7 text-brand" />
+
+                {/* Status Indicator */}
+                <div className="absolute -top-1 -right-1">
+                  <div className="relative">
+                    {/* Pulsing Ring */}
+                    <div className="absolute inset-0 w-4 h-4 bg-brand/30 rounded-full animate-ping" />
+                    {/* Main Status Dot */}
+                    <div className="relative w-3 h-3 bg-brand rounded-full shadow-lg">
+                      {/* <div className="absolute inset-0.5 bg-card rounded-full" /> */}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Floating Elements */}
+            <div
+              className="absolute -top-1 -left-1 w-3 h-3 bg-brand/60 rounded-full shadow-sm"
+              style={{
+                animation: "bounce 3s ease-in-out infinite",
+                animationDelay: "0s",
+              }}
+            />
+            <div
+              className="absolute -bottom-1 -right-1 w-2 h-2 bg-brand/40 rounded-full shadow-sm"
+              style={{
+                animation: "bounce 3s ease-in-out infinite",
+                animationDelay: "1s",
+              }}
+            />
+            <div
+              className="absolute top-2 -right-2 w-2 h-2 bg-brand/70 rounded-full shadow-sm"
+              style={{
+                animation: "bounce 3s ease-in-out infinite",
+                animationDelay: "2s",
+              }}
+            />
+          </div>
         </div>
-        <div className="absolute inset-0 bg-brand/10 rounded-full blur-xl" />
+
+        {/* Delivery Steps */}
+        <div className="relative space-y-3">
+          {deliverySteps.map((step, index) => (
+            <div key={step.label} className="relative flex items-center gap-3">
+              {/* Connection Line */}
+              {index < deliverySteps.length - 1 && (
+                <div className="absolute left-4 top-8 w-px h-6 bg-gradient-to-b from-brand/30 to-border/50" />
+              )}
+
+              {/* Step Icon/Status */}
+              <div
+                className={`relative z-10 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                  step.completed
+                    ? "bg-brand/10 border-brand/30 text-brand"
+                    : "bg-background border-border/50 text-muted-foreground"
+                }`}
+              >
+                {step.completed ? <Check className="w-4 h-4" /> : step.icon}
+              </div>
+
+              {/* Step Label */}
+              <div className="flex-1">
+                <span
+                  className={`text-sm font-medium ${
+                    step.completed ? "text-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  {step.label}
+                </span>
+              </div>
+
+              {/* Progress Indicator */}
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  step.completed ? "bg-brand" : "bg-muted"
+                }`}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -270,6 +529,8 @@ function TileVisual({ type }: { type: string }) {
       return <CampaignBuilderVisual />;
     case "analytics":
       return <AnalyticsVisual />;
+    case "hot-leads":
+      return <HotLeadsVisual />;
     case "automation":
       return <AutomationVisual />;
     case "delivery":
@@ -293,12 +554,19 @@ const tiles = [
     visual: "campaign-builder",
   },
   {
+    id: "hot-leads",
+    title: "Hot Leads Tracking",
+    description: "Identify your best leads as they engage.",
+    description2: "Never miss a hot lead opportunity again.",
+    colSpan: "col-span-12 md:col-span-6 lg:col-span-7",
+    visual: "hot-leads",
+  },
+  {
     id: "analytics",
     title: "Real-time Analytics",
     description:
       "Track open rates, click-through rates, and conversions with detailed insights and reporting.",
-    description2: "Make data-driven decisions to optimize your campaigns.",
-    colSpan: "col-span-12 md:col-span-6 lg:col-span-7",
+    colSpan: "col-span-12 md:col-span-4",
     visual: "analytics",
   },
   {
@@ -316,14 +584,6 @@ const tiles = [
       "Ensure your emails reach the inbox with our optimized delivery infrastructure.",
     colSpan: "col-span-12 md:col-span-4",
     visual: "delivery",
-  },
-  {
-    id: "segmentation",
-    title: "Advanced Segmentation",
-    description:
-      "Target the right audience with powerful segmentation tools and personalization.",
-    colSpan: "col-span-12 md:col-span-4",
-    visual: "segmentation",
   },
 ];
 
@@ -361,7 +621,7 @@ export default function BentoGrid() {
                 <h3 className="text-2xl leading-none font-semibold tracking-tight">
                   {tile.title}
                 </h3>
-                <div className="text-md text-muted-foreground flex flex-col gap-2 text-balance">
+                <div className="text-md text-muted-foreground w-full flex flex-col gap-2 text-balance">
                   <p>{tile.description}</p>
                   {tile.description2 && <p>{tile.description2}</p>}
                 </div>

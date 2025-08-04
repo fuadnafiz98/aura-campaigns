@@ -11,6 +11,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Loader2, Mail } from "lucide-react";
+import Plane from "@/components/logos/plane";
 
 type AuthStep = "email" | "otp";
 type AuthFlow = "signIn" | "signUp";
@@ -144,9 +145,14 @@ export function OTPSignInPage() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8 bg-card border rounded-lg p-8 shadow-lg">
         <div className="text-center space-y-2">
+          <div className="flex space-x-1 items-center justify-center mb-6 text-xl font-medium">
+            <Plane /> <span>Aura Campaigns</span>
+          </div>
           <h1 className="text-2xl font-bold text-foreground">
             {authState.step === "email" &&
-              (authState.flow === "signIn" ? "Welcome Back" : "Create Account")}
+              (authState.flow === "signIn"
+                ? "Welcome Back!"
+                : "Create Account")}
             {authState.step === "otp" && "Verify Your Email"}
           </h1>
           <p className="text-muted-foreground text-sm">

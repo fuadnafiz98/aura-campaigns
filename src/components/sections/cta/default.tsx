@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "../../ui/button";
 import Glow from "../../ui/glow";
 import { Section } from "../../ui/section";
+import { loginRoute } from "@/constants";
+import { Link } from "react-router-dom";
 
 interface CTAButtonProps {
   href: string;
@@ -21,10 +23,10 @@ interface CTAProps {
 }
 
 export default function CTA({
-  title = "Ready to launch smarter campaigns?",
+  title = "Ready to Turn Emails Into Revenue Machines?",
   buttons = [
     {
-      href: "/login",
+      href: loginRoute,
       text: "Sign Up Free",
       variant: "default",
     },
@@ -49,13 +51,14 @@ export default function CTA({
                 key={index}
                 variant={button.variant || "default"}
                 size="lg"
+                className="h-9"
                 asChild
               >
-                <a href={button.href}>
+                <Link to={button.href}>
                   {button.icon}
                   {button.text}
                   {button.iconRight}
-                </a>
+                </Link>
               </Button>
             ))}
           </div>

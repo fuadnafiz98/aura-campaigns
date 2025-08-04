@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 
 import { PricingColumn, PricingColumnProps } from "../../ui/pricing-column";
 import { Section } from "../../ui/section";
+import { loginRoute } from "@/constants";
 
 interface PricingProps {
   title?: string | false;
@@ -23,7 +24,7 @@ export default function Pricing({
       cta: {
         variant: "glow",
         label: "Get started free",
-        href: "/otp-sign-in",
+        href: loginRoute,
       },
       features: [
         "Up to 1,000 contacts",

@@ -1,9 +1,8 @@
-import { ArrowRightIcon, Youtube } from "lucide-react";
+import { ArrowRightIcon } from "lucide-react";
 import { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-import Github from "../../logos/github";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 import Glow from "../../ui/glow";
@@ -11,6 +10,8 @@ import { Mockup, MockupFrame } from "../../ui/mockup";
 import Screenshot from "../../ui/screenshot";
 import { Section } from "../../ui/section";
 import YouTube from "@/components/logos/youtube";
+import { loginRoute } from "@/constants";
+import { Link } from "react-router-dom";
 
 interface HeroButtonProps {
   href: string;
@@ -31,7 +32,7 @@ interface HeroProps {
 
 export default function Hero({
   title = "Transform Your Email Marketing with Intelligent Campaign Automation",
-  description = "Effortlessly build, automate, and track high-converting email campaigns—all in one place. Grow faster with Aura Campaigns!",
+  description = "Intelligent automation, visual workflows, and real-time insights that make complex campaigns effortless. The platform that makes your competitors wonder how you do it!",
   mockup = (
     <Screenshot
       srcLight="/ss.webp"
@@ -44,18 +45,16 @@ export default function Hero({
   ),
   badge = (
     <Badge variant="outline" className="animate-appear h-8 px-4">
-      <span className="text-muted-foreground">
-        New: Aura Campaigns is now live!
-      </span>
-      <a href="/login" className="flex items-center gap-1">
-        Try it free
+      <span className="text-foreground">New: Aura Campaigns is now live!</span>
+      <Link to={loginRoute} className="flex items-center gap-1">
+        <span className="font-bold">Try it free</span>
         <ArrowRightIcon className="size-3" />
-      </a>
+      </Link>
     </Badge>
   ),
   buttons = [
     {
-      href: "/sign-in",
+      href: loginRoute,
       text: "Start Free Trial",
       variant: "default",
     },

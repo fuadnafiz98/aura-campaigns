@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-import LaunchUI from "../logos/launch-ui";
+import Plane from "../logos/plane";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -48,6 +48,11 @@ export default function Navigation({
       title: "Features",
       isLink: true,
       href: "#features",
+    },
+    {
+      title: "Tools",
+      isLink: true,
+      href: "#tools",
     },
     {
       title: "Pricing",
@@ -97,7 +102,7 @@ export default function Navigation({
         "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
     },
   ],
-  logo = <LaunchUI />,
+  logo = <Plane />,
   logoTitle = "Launch UI",
   logoDescription = "Landing page template built with React, Shadcn/ui and Tailwind that you can copy/paste into your project.",
   logoHref = "https://www.launchuicomponents.com/",

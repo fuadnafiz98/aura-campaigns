@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useConvexAuth } from "convex/react";
 import { Loader2 } from "lucide-react";
+import Plane from "@/components/logos/plane";
 
 export function SignInPage() {
   const { signIn } = useAuthActions();
@@ -40,8 +41,11 @@ export function SignInPage() {
 
   return (
     <div className="grid place-content-center w-full h-screen">
+      <div className="flex space-x-1 items-center justify-center mb-6 text-xl font-medium">
+        <Plane /> <span>Aura Campaigns</span>
+      </div>
       <h1 className="text-2xl font-bold text-foreground my-4">
-        {flow === "signIn" ? "Welcome Back" : "Create new account"}
+        {flow === "signIn" ? "Welcome Back!" : "Create new account"}
       </h1>
       <form
         className="flex flex-col gap-2 w-96"
