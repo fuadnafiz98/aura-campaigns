@@ -15,10 +15,13 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  Send,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { FollowUpEmailDialog } from "@/components/modals/leads/follow-up-email";
+import { useState } from "react";
 
 export default function LeadProfilePage() {
   const { leadId } = useParams<{ leadId: Id<"leads"> }>();
@@ -224,14 +227,22 @@ export default function LeadProfilePage() {
         </Card>
 
         {/* Email Logs Section */}
-        {leadId && <EmailLogsSection leadId={leadId} />}
+        {leadId && <EmailLogsSection leadId={leadId} lead={lead} />}
       </div>
     </div>
   );
 }
 
 // Email Logs Section Component
-function EmailLogsSection({ leadId }: { leadId: Id<"leads"> }) {
+function EmailLogsSection({
+  leadId,
+  lead,
+}: {
+  leadId: Id<"leads">;
+  lead: any;
+}) {
+  const [isFollowUpModalOpen, setIsFollowUpModalOpen] = useState(false);
+  const [selectedEmailLog, setSelectedEmailLog] = useState<any>(null);
   const emailLogs = useQuery(api.emailLogs.getLeadEmailLogs, {
     leadId,
     limit: 20,
@@ -390,8 +401,20 @@ function EmailLogsSection({ leadId }: { leadId: Id<"leads"> }) {
                       </div>
                     </div>
 
-                    <div className="flex-shrink-0">
+                    <div className="flex items-center gap-2">
                       {getStatusBadge(log.status)}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedEmailLog(log);
+                          setIsFollowUpModalOpen(true);
+                        }}
+                        className="h-7 px-2 text-xs bg-background hover:bg-muted"
+                      >
+                        <Send className="w-3 h-3 mr-1" />
+                        Follow Up
+                      </Button>
                     </div>
                   </div>
 
@@ -406,6 +429,21 @@ function EmailLogsSection({ leadId }: { leadId: Id<"leads"> }) {
           </div>
         )}
       </CardContent>
+
+      {/* Follow Up Email Modal */}
+      {lead && (
+        <FollowUpEmailDialog
+          leadEmail={lead.email}
+          leadName={lead.name}
+          leadId={leadId}
+          isOpen={isFollowUpModalOpen}
+          onOpenChange={(open) => {
+            setIsFollowUpModalOpen(open);
+            if (!open) setSelectedEmailLog(null);
+          }}
+          contextSubject={selectedEmailLog?.subject}
+        />
+      )}
     </Card>
   );
 }

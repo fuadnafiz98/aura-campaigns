@@ -272,7 +272,6 @@ export const getLeadLatestActivity = query({
 
     // Find the most recent log by updatedAt
     const latestLog = emailLogs.sort((a, b) => b.updatedAt - a.updatedAt)[0];
-    console.log("LATEST", latestLog);
 
     // Determine what the latest activity was based on timestamps (most recent wins)
     let latestActivityType = null;

@@ -13,6 +13,7 @@ import type * as audiences from "../audiences.js";
 import type * as auth from "../auth.js";
 import type * as campaignScheduler from "../campaignScheduler.js";
 import type * as campaigns from "../campaigns.js";
+import type * as constants from "../constants.js";
 import type * as crons from "../crons.js";
 import type * as csvWorkflow from "../csvWorkflow.js";
 import type * as emailLogs from "../emailLogs.js";
@@ -49,6 +50,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   campaignScheduler: typeof campaignScheduler;
   campaigns: typeof campaigns;
+  constants: typeof constants;
   crons: typeof crons;
   csvWorkflow: typeof csvWorkflow;
   emailLogs: typeof emailLogs;

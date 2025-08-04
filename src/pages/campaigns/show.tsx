@@ -17,6 +17,7 @@ import { PlayIcon } from "@/components/ui/play";
 import { MultiSelector } from "@/components/ui/multi-selector";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 type Email = Doc<"emails">;
 
@@ -261,7 +262,15 @@ export default function EmailCampaignFlow() {
       </div>
       <div className="w-full max-w-4xl mx-auto p-6">
         {/* Campaign Header */}
-        <div className="mb-8">
+        <div className="mb-8 space-y-1">
+          <Alert className="text-xs">
+            <AlertTitle className="text-yellow-500">Heads up!</AlertTitle>
+            <AlertDescription className="text-xs text-yellow-600">
+              For the free accounts we will just send{" "}
+              <strong>2 Leads / Audiences </strong> for each email in the
+              campaign. <strong>Maximum 2 Mail</strong> per Campaign.
+            </AlertDescription>
+          </Alert>
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-2xl space-x-2 font-bold text-foreground mb-2">

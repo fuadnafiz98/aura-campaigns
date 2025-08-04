@@ -391,12 +391,14 @@ const HotLeadsTab = () => {
                   >
                     {/* Name and Email */}
                     <div className="col-span-4 flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-foreground/15 to-background rounded-full flex items-center justify-center text-primary-foreground text-xs font-semibold flex-shrink-0">
-                        {lead.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </div>
+                      <Link to={`/app/leads/${lead.id}`}>
+                        <div className="w-8 h-8 bg-gradient-to-br from-foreground/15 to-background rounded-full flex items-center justify-center text-primary-foreground text-xs font-semibold flex-shrink-0">
+                          {lead.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </div>
+                      </Link>
                       <Link to={`/app/leads/${lead.id}`}>
                         <div className="flex-1 min-w-0">
                           <h3 className="text-sm font-semibold text-foreground truncate">

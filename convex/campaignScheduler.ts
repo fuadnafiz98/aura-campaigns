@@ -5,6 +5,7 @@ import {
   internalQuery,
 } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { AUDIENCE_HARD_LIMIT } from "./constants";
 
 // Calculate delay in milliseconds
 function calculateDelayMs(delay: number, delayUnit: string): number {
@@ -53,7 +54,7 @@ export const scheduleCampaignEmails = internalMutation({
           internal.campaignScheduler.getAudienceLeads,
           {
             audienceId,
-            limit: 4,
+            limit: AUDIENCE_HARD_LIMIT,
           },
         );
         allLeads.push(...audienceLeads);

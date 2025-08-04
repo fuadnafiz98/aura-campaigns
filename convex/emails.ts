@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { internalQuery, mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { HARD_EMAIL_PER_CAMPAIGN } from "./constants";
 
 export const internalEmailsList = internalQuery({
   args: {
@@ -12,7 +13,7 @@ export const internalEmailsList = internalQuery({
       .withIndex("ordering")
       .order("asc")
       .filter((q) => q.eq(q.field("campaignId"), args.campaignId))
-      .collect();
+      .take(HARD_EMAIL_PER_CAMPAIGN);
   },
 });
 
