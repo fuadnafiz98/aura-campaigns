@@ -77,11 +77,32 @@ export const scheduleCampaignEmails = internalMutation({
         });
       }
 
+      // Check for existing email logs to avoid duplicates
+      const existingEmailLogs = await ctx.db
+        .query("emailLogs")
+        .withIndex("byCampaign", (q) => q.eq("campaignId", args.campaignId))
+        .collect();
+
+      // Create a set of existing lead+email combinations
+      const existingCombinations = new Set(
+        existingEmailLogs.map((log) => `${log.leadId}_${log.emailId}`),
+      );
+
       // Schedule emails for each lead
       for (const lead of allLeads) {
         let baseTime = now;
 
         for (const email of emails) {
+          const combinationKey = `${lead._id}_${email._id}`;
+
+          // Skip if this lead+email combination already has a log
+          if (existingCombinations.has(combinationKey)) {
+            console.log(
+              `Skipping already scheduled email ${email.subject} for lead ${lead.email}`,
+            );
+            continue;
+          }
+
           // Calculate when this email should be sent
           const delayMs = calculateDelayMs(email.delay, email.delayUnit);
           const scheduledAt = baseTime + delayMs;
@@ -334,6 +355,23 @@ export const cancelCampaignEmails = internalAction({
 
       console.log(`Cancelled ${cancelledCount} scheduled jobs`);
 
+      // Delete all scheduled email logs for this campaign since the jobs are cancelled
+      await ctx.runMutation(
+        internal.campaignScheduler.deleteScheduledEmailLogs,
+        {
+          campaignId: args.campaignId,
+        },
+      );
+
+      // Update email statuses back to draft since they're no longer scheduled
+      await ctx.runMutation(
+        internal.campaignScheduler.updateCampaignEmailStatuses,
+        {
+          campaignId: args.campaignId,
+          status: "draft",
+        },
+      );
+
       // Update campaign scheduling status
       await ctx.runMutation(
         internal.campaignScheduler.updateCampaignSchedulingStatus,
@@ -367,6 +405,8 @@ export const resumeCampaignEmails = internalAction({
 
     try {
       // Simply re-run the scheduling logic
+      // Since we deleted the "scheduled" email logs when pausing, this will reschedule
+      // all emails that haven't been sent yet (those with "sent", "delivered", etc. status remain)
       const result = await ctx.runMutation(
         internal.campaignScheduler.scheduleCampaignEmails,
         {
@@ -390,6 +430,75 @@ export const getCampaignDetails = internalQuery({
   },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.campaignId);
+  },
+});
+
+// Delete scheduled email logs when campaign is paused
+export const deleteScheduledEmailLogs = internalMutation({
+  args: {
+    campaignId: v.id("campaigns"),
+  },
+  handler: async (ctx, args) => {
+    console.log(
+      `Deleting scheduled email logs for campaign: ${args.campaignId}`,
+    );
+
+    // Get all scheduled email logs for this campaign
+    const scheduledLogs = await ctx.db
+      .query("emailLogs")
+      .withIndex("byCampaign", (q) => q.eq("campaignId", args.campaignId))
+      .filter((q) =>
+        q.or(
+          q.eq(q.field("status"), "scheduled"),
+          q.eq(q.field("status"), "pending"),
+        ),
+      )
+      .collect();
+
+    // Delete all scheduled logs
+    let deletedCount = 0;
+    for (const log of scheduledLogs) {
+      await ctx.db.delete(log._id);
+      deletedCount++;
+    }
+
+    console.log(`Deleted ${deletedCount} scheduled email logs`);
+    return { deletedLogs: deletedCount };
+  },
+});
+
+// Update email statuses for a campaign (used when pausing/resuming)
+export const updateCampaignEmailStatuses = internalMutation({
+  args: {
+    campaignId: v.id("campaigns"),
+    status: v.string(),
+  },
+  handler: async (ctx, args) => {
+    console.log(
+      `Updating email statuses to "${args.status}" for campaign: ${args.campaignId}`,
+    );
+
+    // Get all emails for this campaign
+    const emails = await ctx.db
+      .query("emails")
+      .withIndex("byCampaign", (q) => q.eq("campaignId", args.campaignId))
+      .collect();
+
+    // Update each email's status
+    let updatedCount = 0;
+    for (const email of emails) {
+      // Only update emails that aren't already sent/completed
+      if (email.status !== "sent" && email.status !== "completed") {
+        await ctx.db.patch(email._id, {
+          status: args.status,
+          updatedAt: Date.now(),
+        });
+        updatedCount++;
+      }
+    }
+
+    console.log(`Updated ${updatedCount} email statuses to "${args.status}"`);
+    return { updatedEmails: updatedCount };
   },
 });
 
@@ -446,45 +555,3 @@ export const updateCampaignSchedulingStatus = internalMutation({
     return await ctx.db.patch(args.campaignId, updateData);
   },
 });
-
-// Query to get campaign scheduling status using Convex's _scheduled_functions
-// export const getCampaignSchedulingStatus = internalQuery({
-//   args: {
-//     campaignId: v.id("campaigns"),
-//   },
-//   handler: async (ctx, args) => {
-//     const campaign = await ctx.db.get(args.campaignId);
-//     if (!campaign?.scheduledJobIds) {
-//       return { scheduled: 0, completed: 0, failed: 0, cancelled: 0 };
-//     }
-
-//     const stats = { scheduled: 0, completed: 0, failed: 0, cancelled: 0 };
-
-//     for (const jobId of campaign.scheduledJobIds) {
-//       try {
-//         // Query the _scheduled_functions system table
-//         const scheduledFunction = await ctx.db.system
-//           .query("_scheduled_functions")
-//           .filter((q) => q.eq(q.field("_id"), jobId))
-//           .first();
-
-//         if (scheduledFunction) {
-//           const state = scheduledFunction.state;
-//           if (state.kind === "pending") {
-//             stats.scheduled++;
-//           } else if (state.kind === "success") {
-//             stats.completed++;
-//           } else if (state.kind === "failed") {
-//             stats.failed++;
-//           } else if (state.kind === "canceled") {
-//             stats.cancelled++;
-//           }
-//         }
-//       } catch (error) {
-//         console.warn(`Failed to get status for job ${jobId}:`, error);
-//       }
-//     }
-
-//     return stats;
-//   },
-// });
