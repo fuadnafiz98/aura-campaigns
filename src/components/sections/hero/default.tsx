@@ -59,7 +59,7 @@ export default function Hero({
       variant: "default",
     },
     {
-      href: "https://github.com/fuadnafiz98",
+      href: "https://www.youtube.com/watch?v=XfSaFTy8PH4",
       text: "Watch Demo on Youtube",
       variant: "outline",
       icon: <YouTube />,
