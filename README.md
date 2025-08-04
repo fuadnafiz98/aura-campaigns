@@ -1,52 +1,58 @@
-## Resources 
+<p align="center">
+  <img src="public/yt-tl.jpg" alt="Aura Campaigns Thumbnail" width="600" />
+</p>
 
-- [https://stack.convex.dev/add-a-collaborative-document-editor-to-your-app](https://stack.convex.dev/add-a-collaborative-document-editor-to-your-app) 
-- [https://www.convex.dev/components/prosemirror-sync](https://www.convex.dev/components/prosemirror-sync) 
+<h1 align="center">
+  <img src="public/plane.svg" alt="Aura Campaigns Logo" width="40" style="vertical-align:middle; margin-right:10px;" />
+  Aura Campaigns
+</h1>
+<p align="center"><b>All-in-one, lightning-fast email marketing platform.</b></p>
 
+Build stunning campaigns with a visual drag-and-drop builder, automate sequences with smart scheduling, and track every open, click, and lead in real time. Import thousands of leads in seconds, score your hottest prospects instantly, and manage everything with a beautiful, modern interface.
 
+---
 
-# Welcome to your Convex + React (Vite) + Convex Auth app
+## ✨ Features
 
-This is a [Convex](https://convex.dev/) project created with [`npm create convex`](https://www.npmjs.com/package/create-convex).
+- 🎨 **Visual Campaign Builder:** Drag-and-drop email sequence creation with timeline and particle animations
+- 📁 **Instant CSV Import:** Bulk import leads, auto-categorize, and deduplicate in seconds
+- 🧑‍💼 **Smart Lead Management:** Advanced segmentation, audience targeting, and hot lead scoring
+- ⚡ **Automation Engine:** Time-based scheduling, pause/resume, and background processing
+- 📨 **Rich Email Composer:** WYSIWYG editor, live preview, and template support
+- 📊 **Real-Time Analytics:** Track delivery, opens, clicks, bounces, and engagement trends
+- 🔒 **Enterprise-Grade Security:** Auth, RBAC, encryption, and compliance
+- 🌈 **Modern UI:** Responsive, beautiful, and easy to use
 
-After the initial setup (<2 minutes) you'll have a working full-stack app using:
+---
 
-- Convex as your backend (database, server logic)
-- [React](https://react.dev/) as your frontend (web page interactivity)
-- [Vite](https://vitest.dev/) for optimized web hosting
-- [Tailwind](https://tailwindcss.com/) for building great looking UI
-- [Convex Auth](https://labs.convex.dev/auth) for authentication
+## 🛠️ Tech Stack
 
-## Get started
+- [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- [Convex](https://convex.dev/) (database, backend, real-time)
+- [Resend](https://resend.com/) (email delivery)
+- [TipTap](https://tiptap.dev/) (rich text editor)
+- [Tailwind CSS](https://tailwindcss.com/) (UI)
+- [Framer Motion](https://www.framer.com/motion/) (animations)
 
-If you just cloned this codebase and didn't use `npm create convex`, run:
+---
 
+## 🚀 Quick Start
+
+```bash
+git clone https://github.com/yourusername/aura-campaigns.git
+cd aura-campaigns
+pnpm install
+pnpm dev
 ```
-npm install
-npm run dev
-```
 
-If you're reading this README on GitHub and want to use this template, run:
+---
 
-```
-npm create convex@latest -- -t react-vite-convexauth
-```
+## 📣 About
 
-For more information on how to configure Convex Auth, check out the [Convex Auth docs](https://labs.convex.dev/auth/).
+Aura Campaigns was built for the @convex_dev & @resend hackathon. It aims to make professional email marketing effortless, powerful, and fun for everyone.
 
-For more examples of different Convex Auth flows, check out this [example repo](https://www.convex.dev/templates/convex-auth).
+---
 
-## Learn more
+## 📄 License
 
-To learn more about developing your project with Convex, check out:
-
-- The [Tour of Convex](https://docs.convex.dev/get-started) for a thorough introduction to Convex principles.
-- The rest of [Convex docs](https://docs.convex.dev/) to learn about all Convex features.
-- [Stack](https://stack.convex.dev/) for in-depth articles on advanced topics.
-
-## Join the community
-
-Join thousands of developers building full-stack apps with Convex:
-
-- Join the [Convex Discord community](https://convex.dev/community) to get help in real-time.
-- Follow [Convex on GitHub](https://github.com/get-convex/), star and contribute to the open-source implementation of Convex.
+Apache-2.0
